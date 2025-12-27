@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to RepoComPass</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 40px;
+    }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .step-number {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .step-content h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .step-content p {
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .api-section {
+      background: #f8f9ff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 20px;
+    }
+
+    .api-section h3 {
+      font-size: 1rem;
+      color: #667eea;
+      margin-bottom: 12px;
+    }
+
+    .api-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #667eea;
+      text-decoration: none;
+      padding: 10px 16px;
+      background: white;
+      border-radius: 8px;
+      margin: 4px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .api-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .cta {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .note {
+      margin-top: 24px;
+      padding: 16px;
+      background: #fff9e6;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #856404;
+    }
+
+    .note strong {
+      color: #856404;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🧭 RepoComPass</h1>
+      <p>Personalized project recommendations for your job search</p>
+    </div>
+
+    <div class="content">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Visit a Job Posting</h3>
+          <p>Navigate to any job posting on LinkedIn Jobs, Indeed, or Glassdoor. The extension will automatically detect it.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Analyze the Opportunity</h3>
+          <p>Click the RepoComPass icon or the floating button. We'll extract job details and search for the hiring manager's GitHub profile.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Get Personalized Ideas</h3>
+          <p>Receive AI-generated project ideas tailored to the job requirements and hiring manager's tech interests. Stand out from other applicants!</p>
+        </div>
+      </div>
+
+      <div class="api-section">
+        <h3>🔑 Set Up Your API Keys</h3>
+        <p style="margin-bottom: 12px; color: #666;">For the best experience, add your API keys in the extension settings:</p>
+        
+        <a href="https://platform.openai.com/api-keys" target="_blank" class="api-link">
+          <span>🤖</span> Get OpenAI Key (required)
+        </a>
+        
+        <a href="https://github.com/settings/tokens" target="_blank" class="api-link">
+          <span>🐙</span> Get GitHub Token (optional)
+        </a>
+        
+        <a href="https://serpapi.com/manage-api-key" target="_blank" class="api-link">
+          <span>🔍</span> Get SerpAPI Key (optional)
+        </a>
+      </div>
+
+      <div class="note">
+        <strong>🔒 Privacy First:</strong> Your API keys are stored locally and never sent to our servers. We only use public data from GitHub and respect LinkedIn's terms of service.
+      </div>
+
+      <div class="cta">
+        <a href="https://www.linkedin.com/jobs" target="_blank" class="cta-button">
+          Start Browsing Jobs →
+        </a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

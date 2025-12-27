@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RepoComPass</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>🧭 RepoComPass</h1>
+      <p class="tagline">Personalized project ideas for your job search</p>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tabs">
+      <button class="tab active" data-tab="analyze">Analyze</button>
+      <button class="tab" data-tab="saved">Saved Ideas</button>
+      <button class="tab" data-tab="settings">Settings</button>
+    </nav>
+
+    <!-- Analyze Tab -->
+    <section id="analyze" class="tab-content active">
+      <div class="status-card" id="statusCard">
+        <div class="status-icon">📋</div>
+        <p id="statusText">Navigate to a job posting to get started</p>
+      </div>
+
+      <div id="jobInfo" class="job-info hidden">
+        <h3 id="jobTitle">Job Title</h3>
+        <p id="companyName" class="company">Company Name</p>
+      </div>
+
+      <div id="managerInfo" class="manager-info hidden">
+        <h4>Hiring Manager Insights</h4>
+        <div class="manager-card">
+          <p id="managerName" class="manager-name">--</p>
+          <div class="manager-links">
+            <a id="githubLink" href="#" target="_blank" class="link-btn hidden">
+              <span>GitHub</span>
+            </a>
+            <a id="linkedinLink" href="#" target="_blank" class="link-btn hidden">
+              <span>LinkedIn</span>
+            </a>
+          </div>
+          <div id="techStack" class="tech-stack hidden">
+            <p class="label">Tech Interests:</p>
+            <div id="techTags" class="tags"></div>
+          </div>
+        </div>
+      </div>
+
+      <button id="generateBtn" class="primary-btn" disabled>
+        <span class="btn-text">Generate Project Ideas</span>
+        <span class="btn-loader hidden"></span>
+      </button>
+
+      <div id="projectIdeas" class="ideas-container hidden">
+        <h4>Project Recommendations</h4>
+        <div id="ideasList"></div>
+      </div>
+
+      <div id="errorMessage" class="error-message hidden"></div>
+    </section>
+
+    <!-- Saved Ideas Tab -->
+    <section id="saved" class="tab-content">
+      <div id="savedIdeasList" class="saved-list">
+        <p class="empty-state">No saved ideas yet. Generate and save project ideas from job postings!</p>
+      </div>
+      <button id="clearSavedBtn" class="secondary-btn hidden">Clear All Saved</button>
+    </section>
+
+    <!-- Settings Tab -->
+    <section id="settings" class="tab-content">
+      <div class="settings-group">
+        <h4>API Keys (Bring Your Own Key)</h4>
+        <p class="settings-note">Your keys are stored locally and never shared.</p>
+
+        <div class="input-group">
+          <label for="openaiKey">OpenAI API Key</label>
+          <input type="password" id="openaiKey" placeholder="sk-...">
+          <button class="toggle-visibility" data-target="openaiKey">👁</button>
+        </div>
+
+        <div class="input-group">
+          <label for="githubToken">GitHub Token (optional)</label>
+          <input type="password" id="githubToken" placeholder="ghp_...">
+          <button class="toggle-visibility" data-target="githubToken">👁</button>
+        </div>
+
+        <div class="input-group">
+          <label for="serpApiKey">SerpAPI Key (optional)</label>
+          <input type="password" id="serpApiKey" placeholder="Your SerpAPI key">
+          <button class="toggle-visibility" data-target="serpApiKey">👁</button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <h4>Preferences</h4>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="enableCache" checked>
+          <label for="enableCache">Enable caching (reduces API calls)</label>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="autoAnalyze">
+          <label for="autoAnalyze">Auto-analyze when visiting job pages</label>
+        </div>
+
+        <div class="input-group">
+          <label for="cacheExpiry">Cache expiry (hours)</label>
+          <input type="number" id="cacheExpiry" value="24" min="1" max="168">
+        </div>
+      </div>
+
+      <button id="saveSettingsBtn" class="primary-btn">Save Settings</button>
+      <div id="settingsStatus" class="settings-status hidden"></div>
+    </section>
+
+    <footer class="footer">
+      <p>Built with ❤️ for job seekers</p>
+    </footer>
+  </div>
+
+  <script src="popup.js" type="module"></script>
+</body>
+</html>
