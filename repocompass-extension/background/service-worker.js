@@ -293,8 +293,8 @@ ${jobData?.experienceRequired ? `${jobData.experienceRequired}+ years` : 'Not sp
       systems: 'Systems/OS',
       databases: 'Databases',
       networking: 'Networking',
-      frontend: 'Frontend',
-      backend: 'Backend',
+      frontend: 'Front-end',
+      backend: 'Back-end',
       aiMl: 'AI/ML',
       math: 'Math/Probability'
     };

@@ -54,7 +54,7 @@ body {
   color: var(--text-primary);
   width: 420px;
   min-height: 580px;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.6;
   image-rendering: pixelated;
   -webkit-font-smoothing: antialiased;
@@ -131,9 +131,9 @@ body.no-crt .scanlines {
 }
 
 .game-title {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--neon-cyan);
-  text-shadow: 
+  text-shadow:
     0 0 10px var(--neon-cyan),
     0 0 20px var(--neon-cyan),
     0 0 40px var(--neon-cyan);
@@ -150,7 +150,7 @@ body.no-crt .scanlines {
 }
 
 .subtitle {
-  font-size: 6px;
+  font-size: 7px;
   color: var(--neon-yellow);
   margin-top: 6px;
   letter-spacing: 1px;
@@ -193,12 +193,12 @@ body.no-crt .scanlines {
 
 .player-label {
   color: var(--text-muted);
-  font-size: 6px;
+  font-size: 7px;
 }
 
 .player-name {
   color: var(--neon-green);
-  font-size: 8px;
+  font-size: 9px;
   text-shadow: 0 0 5px var(--neon-green);
 }
 
@@ -213,12 +213,12 @@ body.no-crt .scanlines {
 
 .level-label {
   color: var(--text-muted);
-  font-size: 6px;
+  font-size: 7px;
 }
 
 .level-value {
   color: var(--exp-gold);
-  font-size: 10px;
+  font-size: 11px;
   text-shadow: 0 0 5px var(--exp-gold);
 }
 
@@ -243,7 +243,7 @@ body.no-crt .scanlines {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 6px;
+  font-size: 7px;
   color: var(--text-primary);
   text-shadow: 1px 1px 0 #000;
   white-space: nowrap;
@@ -290,7 +290,7 @@ body.no-crt .scanlines {
 }
 
 .tab-text {
-  font-size: 6px;
+  font-size: 7px;
   color: var(--text-secondary);
 }
 
@@ -335,7 +335,7 @@ body.no-crt .scanlines {
 .panel-header {
   background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
   padding: 8px 12px;
-  font-size: 8px;
+  font-size: 9px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -368,9 +368,10 @@ body.no-crt .scanlines {
 }
 
 .status-text {
-  font-size: 7px;
+  font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.8;
+  font-family: var(--font-terminal);
 }
 
 /* Job Card */
@@ -392,7 +393,7 @@ body.no-crt .scanlines {
   padding: 4px 12px;
   background: var(--neon-green);
   color: var(--bg-dark);
-  font-size: 6px;
+  font-size: 7px;
   animation: glow 1.5s ease-in-out infinite alternate;
 }
 
@@ -402,18 +403,19 @@ body.no-crt .scanlines {
 }
 
 .job-title {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--neon-cyan);
   margin-bottom: 6px;
   text-shadow: 0 0 5px var(--neon-cyan);
 }
 
 .company-name {
-  font-size: 7px;
+  font-size: 13px;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 6px;
+  font-family: var(--font-terminal);
 }
 
 .job-tags {
@@ -427,7 +429,7 @@ body.no-crt .scanlines {
   padding: 3px 8px;
   background: var(--bg-panel);
   border: 1px solid var(--neon-purple);
-  font-size: 6px;
+  font-size: 7px;
   color: var(--neon-purple);
 }
 
@@ -461,7 +463,7 @@ body.no-crt .scanlines {
 }
 
 .company-label {
-  font-size: 7px;
+  font-size: 8px;
   color: var(--neon-cyan);
   text-shadow: 0 0 5px var(--neon-cyan);
 }
@@ -485,7 +487,7 @@ body.no-crt .scanlines {
 }
 
 .company-projects-header {
-  font-size: 6px;
+  font-size: 7px;
   color: var(--neon-purple);
   margin-bottom: 8px;
   display: flex;
@@ -510,7 +512,7 @@ body.no-crt .scanlines {
 }
 
 .project-name {
-  font-size: 7px;
+  font-size: 8px;
   color: var(--neon-purple);
   margin-bottom: 4px;
   font-weight: 700;
@@ -518,13 +520,13 @@ body.no-crt .scanlines {
 
 .project-desc {
   font-family: var(--font-terminal);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.3;
 }
 
 .tech-label {
-  font-size: 6px;
+  font-size: 7px;
   color: var(--text-muted);
   display: block;
   margin-bottom: 6px;
