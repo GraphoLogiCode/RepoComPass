@@ -37,7 +37,7 @@
   --pixel-size: 2px;
   
   /* Fonts */
-  --font-pixel: 'Press Start 2P', monospace;
+  --font-pixel: 'Orbitron', 'Press Start 2P', monospace;
   --font-terminal: 'VT323', monospace;
 }
 
@@ -54,10 +54,11 @@ body {
   color: var(--text-primary);
   width: 420px;
   min-height: 580px;
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.6;
   image-rendering: pixelated;
-  -webkit-font-smoothing: none;
+  -webkit-font-smoothing: antialiased;
+  font-weight: 500;
 }
 
 /* CRT Screen Effect */
