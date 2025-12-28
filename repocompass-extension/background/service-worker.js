@@ -131,7 +131,7 @@ Return ONLY a valid JSON object with this structure:
 }`;
 
   try {
-    // Use Responses API with file_search tool for enhanced research
+    // Use Responses API with web_search tool for real-time company research
     const response = await fetch(`${API_CONFIG.openai.baseUrl}/responses`, {
       method: 'POST',
       headers: {
@@ -141,7 +141,7 @@ Return ONLY a valid JSON object with this structure:
       body: JSON.stringify({
         model: API_CONFIG.openai.modelPrimary,
         modalities: ['text'],
-        instructions: 'You are a company research assistant that provides accurate, factual information about companies and their technology practices. Use file search to find relevant information when available. Always respond with valid JSON.',
+        instructions: 'You are a company research assistant that provides accurate, factual information about companies and their technology practices. Use web search to find current information. Always respond with valid JSON.',
         input: [
           {
             role: 'user',
@@ -149,8 +149,7 @@ Return ONLY a valid JSON object with this structure:
           }
         ],
         tools: [
-          { type: 'file_search' }, // Enable file search for better research
-          { type: 'web_search' }    // Enable web search for real-time data
+          { type: 'web_search' } // Enable web search for real-time data
         ],
         temperature: 0.3,
         max_output_tokens: 2000,
@@ -191,7 +190,7 @@ async function generateIdeas(data) {
   const prompt = buildPrompt(jobData, companyData, playerStats);
 
   try {
-    // Use Responses API with file_search for better context
+    // Use Responses API with web_search for current company context
     const response = await fetch(`${API_CONFIG.openai.baseUrl}/responses`, {
       method: 'POST',
       headers: {
@@ -210,7 +209,7 @@ async function generateIdeas(data) {
             5. Stand out from typical portfolio projects
             6. Show understanding of the company's domain and challenges
 
-            Use file search or web search when you need additional context about the company or technologies. Always respond with valid JSON.`,
+            Use web search when you need current information about the company or technologies. Always respond with valid JSON.`,
         input: [
           {
             role: 'user',
@@ -218,7 +217,6 @@ async function generateIdeas(data) {
           }
         ],
         tools: [
-          { type: 'file_search' },
           { type: 'web_search' }
         ],
         temperature: 0.8,

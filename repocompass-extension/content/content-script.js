@@ -394,7 +394,48 @@ function injectQuickAccessButton() {
     
     fab.addEventListener('click', () => {
       try {
-        chrome.runtime.sendMessage({ action: 'openPopup' });
+        // Chrome extensions cannot programmatically open the popup
+        // Instead, we signal to the background script to show a badge
+        // and provide visual feedback to the user
+        chrome.runtime.sendMessage({ action: 'openPopup' }, (response) => {
+          if (response && response.success) {
+            // Show a tooltip to guide the user
+            const tooltip = document.createElement('div');
+            tooltip.textContent = 'Click the RepoComPass extension icon! ↗️';
+            tooltip.style.cssText = `
+              position: fixed;
+              bottom: 80px;
+              right: 20px;
+              background: #667eea;
+              color: white;
+              padding: 12px 16px;
+              border-radius: 8px;
+              font-family: 'VT323', monospace;
+              font-size: 16px;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+              z-index: 10001;
+              animation: fadeInOut 3s forwards;
+            `;
+
+            // Add animation
+            const style = document.createElement('style');
+            style.textContent = `
+              @keyframes fadeInOut {
+                0% { opacity: 0; transform: translateY(10px); }
+                10% { opacity: 1; transform: translateY(0); }
+                90% { opacity: 1; transform: translateY(0); }
+                100% { opacity: 0; transform: translateY(-10px); }
+              }
+            `;
+            document.head.appendChild(style);
+            document.body.appendChild(tooltip);
+
+            setTimeout(() => {
+              tooltip.remove();
+              style.remove();
+            }, 3000);
+          }
+        });
       } catch (error) {
         console.error('Error sending message to open popup:', error);
       }
