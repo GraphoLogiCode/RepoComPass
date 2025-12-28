@@ -47,9 +47,18 @@ const COMPANY_RESEARCH_SCHEMA = {
     type: 'object',
     properties: {
       company: { type: 'string', description: 'Company name' },
-      website: { type: ['string', 'null'], description: 'Official website URL' },
-      engineeringBlog: { type: ['string', 'null'], description: 'Engineering blog URL' },
-      githubOrg: { type: ['string', 'null'], description: 'GitHub organization URL' },
+      website: { 
+        anyOf: [{ type: 'string' }, { type: 'null' }],
+        description: 'Official website URL or null if unknown'
+      },
+      engineeringBlog: { 
+        anyOf: [{ type: 'string' }, { type: 'null' }],
+        description: 'Engineering blog URL or null if none'
+      },
+      githubOrg: { 
+        anyOf: [{ type: 'string' }, { type: 'null' }],
+        description: 'GitHub organization URL or null if none'
+      },
       techStack: {
         type: 'array',
         items: { type: 'string' },
@@ -117,14 +126,40 @@ const PROJECT_IDEAS_SCHEMA = {
 function extractTextFromResponseOutput(result) {
   let textContent = null;
   let webSearchSources = [];
+  let refusalMessage = null;
+  
+  console.log('[RepoComPass] extractTextFromResponseOutput - parsing output:', {
+    hasOutput: !!result.output,
+    outputLength: result.output?.length,
+    outputTypes: result.output?.map(o => o.type)
+  });
   
   if (result.output && Array.isArray(result.output)) {
     for (const outputItem of result.output) {
+      console.log('[RepoComPass] Processing output item:', {
+        type: outputItem.type,
+        hasContent: !!outputItem.content,
+        contentLength: outputItem.content?.length
+      });
+      
       // Handle message type (contains the actual text response)
       if (outputItem.type === 'message' && outputItem.content) {
         for (const contentItem of outputItem.content) {
+          console.log('[RepoComPass] Processing content item:', {
+            type: contentItem.type,
+            hasText: !!contentItem.text,
+            textLength: contentItem.text?.length
+          });
+          
+          // Check for refusal
+          if (contentItem.type === 'refusal') {
+            refusalMessage = contentItem.refusal;
+            console.warn('[RepoComPass] Model refused request:', refusalMessage);
+          }
+          
           if (contentItem.type === 'output_text' || contentItem.type === 'text') {
             textContent = contentItem.text;
+            console.log('[RepoComPass] Found text content, length:', textContent?.length);
             break;
           }
         }
@@ -142,9 +177,17 @@ function extractTextFromResponseOutput(result) {
   // Fallback for Chat Completions API format
   if (!textContent && result.choices?.[0]?.message?.content) {
     textContent = result.choices[0].message.content;
+    console.log('[RepoComPass] Using Chat Completions fallback, length:', textContent?.length);
   }
   
-  return { textContent, webSearchSources };
+  console.log('[RepoComPass] extractTextFromResponseOutput result:', {
+    foundText: !!textContent,
+    textLength: textContent?.length,
+    sourcesCount: webSearchSources.length,
+    hasRefusal: !!refusalMessage
+  });
+  
+  return { textContent, webSearchSources, refusalMessage };
 }
 
 // Make a Responses API call with continuation support for incomplete responses
@@ -158,14 +201,22 @@ async function callResponsesAPIWithContinuation(requestBody, apiKey, maxIteratio
   while (iterations < maxIterations) {
     iterations++;
     
-    // Build request - use previous_response_id for continuation
+    // Build request - for continuation, include model + previous_response_id
+    // The API requires model to be specified even when continuing
     const currentRequestBody = previousResponseId
-      ? { previous_response_id: previousResponseId }
+      ? { 
+          model: requestBody.model,
+          previous_response_id: previousResponseId,
+          // Keep same text format for continuation
+          text: requestBody.text,
+          max_output_tokens: requestBody.max_output_tokens
+        }
       : requestBody;
     
     console.log(`[RepoComPass] API call iteration ${iterations}/${maxIterations}`, {
       isContinuation: !!previousResponseId,
-      previousResponseId
+      previousResponseId,
+      model: currentRequestBody.model
     });
     
     const response = await fetch(`${baseUrl}/responses`, {
@@ -368,7 +419,9 @@ Be concise. Only include confident information.`;
       text: {
         format: {
           type: 'json_schema',
-          json_schema: COMPANY_RESEARCH_SCHEMA
+          name: COMPANY_RESEARCH_SCHEMA.name,
+          strict: COMPANY_RESEARCH_SCHEMA.strict,
+          schema: COMPANY_RESEARCH_SCHEMA.schema
         }
       },
       max_output_tokens: 8000
@@ -386,7 +439,12 @@ Be concise. Only include confident information.`;
     });
 
     // Extract text content
-    const { textContent, webSearchSources } = extractTextFromResponseOutput(result);
+    const { textContent, webSearchSources, refusalMessage } = extractTextFromResponseOutput(result);
+    
+    // Check for refusal
+    if (refusalMessage) {
+      throw new Error(`AI refused request: ${refusalMessage}`);
+    }
     
     // Merge sources from continuation helper
     const allSources = [...webSearchSources, ...(result._webSearchSources || [])];
@@ -478,7 +536,9 @@ Use web search for current company information if needed.`,
       text: {
         format: {
           type: 'json_schema',
-          json_schema: PROJECT_IDEAS_SCHEMA
+          name: PROJECT_IDEAS_SCHEMA.name,
+          strict: PROJECT_IDEAS_SCHEMA.strict,
+          schema: PROJECT_IDEAS_SCHEMA.schema
         }
       },
       max_output_tokens: 8000
@@ -496,8 +556,13 @@ Use web search for current company information if needed.`,
     });
 
     // Extract text content using shared helper
-    const { textContent, webSearchSources } = extractTextFromResponseOutput(result);
+    const { textContent, webSearchSources, refusalMessage } = extractTextFromResponseOutput(result);
     const allSources = [...webSearchSources, ...(result._webSearchSources || [])];
+
+    // Check for refusal
+    if (refusalMessage) {
+      throw new Error(`AI refused request: ${refusalMessage}`);
+    }
 
     if (!textContent) {
       console.error('[RepoComPass] No text content. Output types:', 

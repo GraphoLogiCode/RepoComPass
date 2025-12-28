@@ -393,23 +393,46 @@ async function checkCurrentTab() {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
+    console.log('[RepoComPass] checkCurrentTab - Current tab:', {
+      url: tab?.url,
+      id: tab?.id,
+      isJobSite: isJobSite(tab?.url)
+    });
+    
     if (isJobSite(tab.url)) {
       updateStatus('analyzing', '🔍', 'SCANNING QUEST BOARD...');
       
-      const response = await chrome.tabs.sendMessage(tab.id, { action: 'getJobData' });
-      
-      if (response && response.success) {
-        currentJobData = response.data;
-        displayJobInfo(currentJobData);
-        await analyzeCompany(currentJobData);
-      } else {
-        updateStatus('error', '❌', 'QUEST DATA CORRUPTED. TRY REFRESHING THE DUNGEON.');
+      try {
+        const response = await chrome.tabs.sendMessage(tab.id, { action: 'getJobData' });
+        
+        console.log('[RepoComPass] checkCurrentTab - Got response from content script:', {
+          success: response?.success,
+          hasData: !!response?.data,
+          jobTitle: response?.data?.title,
+          error: response?.error
+        });
+        
+        if (response && response.success) {
+          currentJobData = response.data;
+          displayJobInfo(currentJobData);
+          await analyzeCompany(currentJobData);
+        } else {
+          console.error('[RepoComPass] Content script returned error:', response?.error);
+          updateStatus('error', '❌', response?.error || 'QUEST DATA CORRUPTED. TRY REFRESHING THE DUNGEON.');
+          // Still enable the button so user can retry
+          if (elements.generateBtn) {
+            elements.generateBtn.disabled = true;
+          }
+        }
+      } catch (msgError) {
+        console.error('[RepoComPass] Failed to communicate with content script:', msgError);
+        updateStatus('error', '❌', 'CONTENT SCRIPT NOT LOADED. TRY REFRESHING THE PAGE.');
       }
     } else {
       updateStatus('idle', '🗡️', 'SEEK A JOB POSTING TO BEGIN YOUR QUEST...');
     }
   } catch (error) {
-    console.error('Error checking tab:', error);
+    console.error('[RepoComPass] Error checking tab:', error);
     updateStatus('idle', '🗡️', 'NAVIGATE TO LINKEDIN, INDEED, OR GLASSDOOR');
   }
 }
