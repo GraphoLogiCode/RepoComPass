@@ -74,10 +74,10 @@ body {
 
 /* Main Container */
 .setup-container {
-  width: 100%;
-  max-width: 550px;
-  min-height: 600px;
-  max-height: 90vh;
+  width: 95%;
+  max-width: 800px;
+  height: 85vh;
+  max-height: 800px;
   background: var(--panel-bg);
   border: 3px solid var(--border);
   border-radius: 8px;
@@ -87,9 +87,9 @@ body {
   padding: 20px 25px;
   position: relative;
   z-index: 10;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* Let internal parts scroll */
 }
 
 /* Custom scrollbar for container */
@@ -193,10 +193,30 @@ body {
 /* Setup Pages */
 .setup-pages {
   position: relative;
-  min-height: 420px;
-  overflow: visible;
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
   margin-bottom: 15px;
+  padding-right: 5px; /* Space for scrollbar */
+}
+
+/* Custom scrollbar for pages area */
+.setup-pages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.setup-pages::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.setup-pages::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+.setup-pages::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
 }
 
 .setup-page {
@@ -204,6 +224,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
+  min-height: 100%;
   opacity: 0;
   transform: translateX(100%);
   transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -223,6 +244,8 @@ body {
 /* Page Content */
 .page-content {
   padding: 15px 10px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .page-header {
@@ -312,9 +335,15 @@ body {
 }
 
 .feature-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 10px;
+}
+
+@media (min-width: 600px) {
+  .feature-list {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .feature-item {
@@ -327,6 +356,7 @@ body {
   background: rgba(0, 255, 65, 0.05);
   border-radius: 4px;
   border-left: 3px solid var(--primary);
+  height: 100%; /* Fill grid cell */
 }
 
 .feature-icon {
@@ -336,6 +366,18 @@ body {
 /* Form Sections */
 .form-section {
   margin-bottom: 25px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .input-label {
@@ -627,28 +669,20 @@ body {
 }
 
 .skills-allocation {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 320px;
-  overflow-y: auto;
-  padding-right: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding-right: 5px;
 }
 
-/* Custom Scrollbar */
-.skills-allocation::-webkit-scrollbar {
-  width: 8px;
+@media (min-width: 600px) {
+  .skills-allocation {
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
 }
 
-.skills-allocation::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
-}
-
-.skills-allocation::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 4px;
-}
+/* Custom Scrollbar removed from here as parent scrolls */
 
 .skill-allocation-row {
   display: flex;
@@ -851,10 +885,13 @@ body {
   display: flex;
   justify-content: space-between;
   gap: 15px;
-  margin-top: auto;
+  margin-top: auto; /* Push to bottom if content is short */
   padding-top: 20px;
   border-top: 2px solid rgba(0, 255, 65, 0.2);
-  flex-shrink: 0;
+  flex-shrink: 0; /* Never shrink */
+  background: var(--panel-bg); /* Ensure background covers content behind it */
+  position: relative;
+  z-index: 20;
 }
 
 .pixel-btn {
