@@ -64,13 +64,22 @@ async function handleMessage(request, sender) {
       return { success: true };
 
     case 'openPopup':
-      // Open the extension popup
-      chrome.action.openPopup().catch(err => {
+      // Open the extension popup - requires an active browser window
+      try {
+        const windows = await chrome.windows.getAll({ windowTypes: ['normal'] });
+        if (windows.length === 0) {
+          // No browser window available, show badge instead
+          chrome.action.setBadgeText({ text: '!' });
+          chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
+          return { success: false, error: 'No active browser window' };
+        }
+        await chrome.action.openPopup();
+      } catch (err) {
         console.error('Failed to open popup:', err);
         // Fallback: show badge to guide user
         chrome.action.setBadgeText({ text: '!' });
         chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
-      });
+      }
       return { success: true };
 
     default:
@@ -177,7 +186,6 @@ Return ONLY a valid JSON object with this structure:
       tools: [
         { type: 'web_search' }
       ],
-      temperature: 0.3,
       max_output_tokens: 2000
       // Note: Cannot use JSON mode with web_search, so we instruct via prompt
     };
@@ -305,7 +313,6 @@ IMPORTANT: You must respond with ONLY a valid JSON object, no other text before 
       tools: [
         { type: 'web_search' }
       ],
-      temperature: 0.8,
       max_output_tokens: 2000
       // Note: Cannot use JSON mode with web_search, so we instruct via prompt
     };
