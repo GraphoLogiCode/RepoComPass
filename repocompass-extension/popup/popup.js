@@ -83,7 +83,9 @@ let currentCompanyData = null;
 let playerStats = {
   name: 'HERO_DEV',
   skills: {},
-  savedIdeas: []
+  savedIdeas: [],
+  completedProjects: 0,
+  availablePoints: 0  // Points earned from completing projects
 };
 
 // Initialize all skills to 0
@@ -142,6 +144,7 @@ function initializeElements() {
   elements.avatarSprite = document.getElementById('avatarSprite');
   elements.characterClass = document.getElementById('characterClass');
   elements.powerLevel = document.getElementById('powerLevel');
+  elements.availablePoints = document.getElementById('availablePoints');
   elements.skillRows = document.querySelectorAll('.skill-row');
   elements.strongestSkill = document.getElementById('strongestSkill');
   elements.totalXp = document.getElementById('totalXp');
@@ -245,7 +248,7 @@ function setupSkillControls() {
   });
   
   elements.resetStatsBtn.addEventListener('click', () => {
-    if (confirm('Are you sure you want to reset all stats?')) {
+    if (confirm('Are you sure you want to reset all stats? Points will be refunded.')) {
       resetAllStats();
     }
   });
@@ -254,10 +257,38 @@ function setupSkillControls() {
 function updateSkill(skillKey, delta) {
   const config = SKILL_CONFIG[skillKey];
   const currentLevel = playerStats.skills[skillKey] || 0;
+  const availablePoints = playerStats.availablePoints || 0;
+  
+  // Check if we can make the change
+  if (delta > 0) {
+    // Increasing skill - need available points
+    if (availablePoints < 1) {
+      playSound('error');
+      showError('NO SKILL POINTS! Complete projects to earn more.');
+      return;
+    }
+    if (currentLevel >= config.maxLevel) {
+      playSound('error');
+      return;
+    }
+  } else if (delta < 0) {
+    // Decreasing skill - refund points
+    if (currentLevel <= 0) {
+      return;
+    }
+  }
+  
   const newLevel = Math.max(0, Math.min(config.maxLevel, currentLevel + delta));
   
   if (newLevel !== currentLevel) {
     playerStats.skills[skillKey] = newLevel;
+    
+    // Update available points
+    if (delta > 0) {
+      playerStats.availablePoints = availablePoints - 1;
+    } else {
+      playerStats.availablePoints = availablePoints + 1;
+    }
     
     // Play sound
     if (delta > 0) {
@@ -299,10 +330,17 @@ function updateSkillDisplay(skillKey) {
 }
 
 function resetAllStats() {
+  // Calculate total spent points to refund
+  let totalSpent = 0;
   Object.keys(SKILL_CONFIG).forEach(key => {
+    totalSpent += playerStats.skills[key] || 0;
     playerStats.skills[key] = 0;
     updateSkillDisplay(key);
   });
+  
+  // Refund all spent points
+  playerStats.availablePoints = (playerStats.availablePoints || 0) + totalSpent;
+  
   updatePlayerBar();
   updateCharacterSheet();
   savePlayerStats();
@@ -333,12 +371,20 @@ function updateCharacterSheet() {
   const characterClass = getCharacterClass(powerLevel);
   const strongestSkill = getStrongestSkill();
   const totalXp = calculateTotalXP();
+  const availablePoints = playerStats.availablePoints || 0;
   
   elements.avatarSprite.textContent = characterClass.avatar;
   elements.characterClass.textContent = characterClass.name;
   elements.powerLevel.textContent = powerLevel;
   elements.strongestSkill.textContent = strongestSkill;
   elements.totalXp.textContent = totalXp;
+  
+  // Update available points display
+  if (elements.availablePoints) {
+    elements.availablePoints.textContent = availablePoints;
+    // Highlight if points available
+    elements.availablePoints.parentElement.classList.toggle('has-points', availablePoints > 0);
+  }
 }
 
 function calculateTotalXP() {
@@ -810,10 +856,21 @@ function showError(message) {
 // ==========================================
 // INVENTORY (SAVED IDEAS)
 // ==========================================
+
+// Points awarded based on project difficulty
+const DIFFICULTY_POINTS = {
+  beginner: 1,
+  intermediate: 2,
+  advanced: 3
+};
+
 async function loadSavedIdeas() {
   const savedIdeas = playerStats.savedIdeas || [];
   
-  elements.inventoryCount.textContent = `${savedIdeas.length} ITEMS`;
+  const completedCount = savedIdeas.filter(i => i.completed).length;
+  const pendingCount = savedIdeas.length - completedCount;
+  
+  elements.inventoryCount.textContent = `${pendingCount} PENDING | ${completedCount} DONE`;
   
   if (savedIdeas.length === 0) {
     elements.savedIdeasList.innerHTML = `
@@ -828,19 +885,50 @@ async function loadSavedIdeas() {
   }
   
   elements.clearInventoryBtn.classList.remove('hidden');
-  elements.savedIdeasList.innerHTML = savedIdeas.map((idea, index) => `
-    <div class="inventory-item">
+  elements.savedIdeasList.innerHTML = savedIdeas.map((idea, index) => {
+    const isCompleted = idea.completed;
+    const difficulty = idea.difficulty || 'intermediate';
+    const pointsValue = DIFFICULTY_POINTS[difficulty] || 2;
+    
+    return `
+    <div class="inventory-item ${isCompleted ? 'completed' : ''}">
       <div class="inventory-item-header">
-        <span class="inventory-item-title">${idea.title}</span>
+        <span class="inventory-item-title">${isCompleted ? '✅ ' : ''}${idea.title}</span>
         <button class="pixel-btn danger small remove-item-btn" data-index="${index}">✕</button>
       </div>
       <p class="inventory-item-source">📍 ${idea.company} - ${idea.jobTitle}</p>
       <p class="inventory-item-desc">${idea.description}</p>
-      <div class="loot-tags">
-        ${idea.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+      <div class="inventory-item-meta">
+        <span class="difficulty-badge ${difficulty}">${difficulty.toUpperCase()}</span>
+        <span class="points-badge">+${pointsValue} PTS</span>
       </div>
+      <div class="loot-tags">
+        ${(idea.technologies || []).map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+      </div>
+      ${!isCompleted ? `
+        <div class="inventory-item-actions">
+          <button class="pixel-btn success complete-project-btn" data-index="${index}" data-points="${pointsValue}">
+            <span>🏆</span> MARK COMPLETE (+${pointsValue} PTS)
+          </button>
+        </div>
+      ` : `
+        <div class="inventory-item-completed">
+          <span class="completed-badge">🎉 COMPLETED ${idea.completedAt ? new Date(idea.completedAt).toLocaleDateString() : ''}</span>
+        </div>
+      `}
     </div>
-  `).join('');
+  `;
+  }).join('');
+  
+  // Add complete handlers
+  elements.savedIdeasList.querySelectorAll('.complete-project-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const button = e.currentTarget;
+      const index = parseInt(button.dataset.index);
+      const points = parseInt(button.dataset.points);
+      await completeProject(index, points);
+    });
+  });
   
   // Add remove handlers
   elements.savedIdeasList.querySelectorAll('.remove-item-btn').forEach(btn => {
@@ -853,6 +941,50 @@ async function loadSavedIdeas() {
       playSound('drop');
     });
   });
+}
+
+// Complete a project and award skill points
+async function completeProject(index, points) {
+  const idea = playerStats.savedIdeas[index];
+  if (!idea || idea.completed) return;
+  
+  // Mark as completed
+  idea.completed = true;
+  idea.completedAt = new Date().toISOString();
+  
+  // Award points
+  playerStats.availablePoints = (playerStats.availablePoints || 0) + points;
+  playerStats.completedProjects = (playerStats.completedProjects || 0) + 1;
+  
+  // Save and update UI
+  await savePlayerStats();
+  loadSavedIdeas();
+  updatePlayerBar();
+  updateCharacterSheet();
+  
+  // Play celebration sound and show notification
+  playSound('levelUp');
+  
+  // Show points earned notification
+  showPointsEarned(points);
+}
+
+// Show floating notification for earned points
+function showPointsEarned(points) {
+  const notification = document.createElement('div');
+  notification.className = 'points-notification';
+  notification.innerHTML = `
+    <span class="points-earned">+${points} SKILL POINTS!</span>
+    <span class="points-hint">Spend in STATS tab</span>
+  `;
+  document.body.appendChild(notification);
+  
+  // Animate and remove
+  setTimeout(() => notification.classList.add('show'), 10);
+  setTimeout(() => {
+    notification.classList.remove('show');
+    setTimeout(() => notification.remove(), 300);
+  }, 2500);
 }
 
 async function saveIdea(idea) {

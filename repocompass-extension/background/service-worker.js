@@ -323,21 +323,14 @@ async function handleMessage(request, sender) {
       return { success: true };
 
     case 'openPopup':
-      // Open the popup as a standalone window (stays open until user closes)
+      // Use native popup - show badge to prompt user to click extension icon
       try {
-        const popupUrl = chrome.runtime.getURL('popup/popup.html');
-        await chrome.windows.create({
-          url: popupUrl,
-          type: 'popup',
-          width: 420,
-          height: 600,
-          focused: true
-        });
-      } catch (err) {
-        console.error('Failed to open popup window:', err);
-        // Fallback: show badge to guide user
+        // Set badge to indicate action needed
         chrome.action.setBadgeText({ text: '!' });
         chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
+        // Badge will be cleared when popup opens (see chrome.action.onClicked listener)
+      } catch (err) {
+        console.error('Failed to set badge:', err);
       }
       return { success: true };
 

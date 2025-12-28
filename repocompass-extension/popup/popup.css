@@ -603,6 +603,16 @@ body.no-crt .scanlines {
   border-color: #ff6666;
 }
 
+.pixel-btn.success {
+  background: var(--success-green);
+  color: var(--bg-dark);
+  border-color: #66ff66;
+}
+
+.pixel-btn.success:hover {
+  box-shadow: 0 0 15px var(--success-green);
+}
+
 .pixel-btn.small {
   font-size: 6px;
   padding: 6px 10px;
@@ -1041,6 +1051,144 @@ body.no-crt .scanlines {
   font-size: 14px;
   color: var(--text-primary);
   line-height: 1.4;
+}
+
+/* Completed project styling */
+.inventory-item.completed {
+  opacity: 0.7;
+  border-color: var(--success-green);
+  background: linear-gradient(135deg, rgba(51, 255, 51, 0.1) 0%, var(--bg-darker) 100%);
+}
+
+.inventory-item-meta {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.difficulty-badge {
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.difficulty-badge.beginner {
+  background: var(--success-green);
+  color: var(--bg-dark);
+}
+
+.difficulty-badge.intermediate {
+  background: var(--neon-yellow);
+  color: var(--bg-dark);
+}
+
+.difficulty-badge.advanced {
+  background: var(--neon-orange);
+  color: var(--bg-dark);
+}
+
+.points-badge {
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  background: var(--neon-purple);
+  color: white;
+}
+
+.inventory-item-actions {
+  margin-top: 10px;
+}
+
+.complete-project-btn {
+  width: 100%;
+}
+
+.inventory-item-completed {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.completed-badge {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: var(--success-green);
+}
+
+/* Available Points Display */
+.available-points {
+  margin-top: 8px;
+  text-align: center;
+  padding: 8px;
+  background: var(--bg-darker);
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.available-points.has-points {
+  border-color: var(--neon-purple);
+  background: linear-gradient(135deg, rgba(191, 0, 255, 0.2) 0%, var(--bg-darker) 100%);
+  animation: pulse-points 2s infinite;
+}
+
+@keyframes pulse-points {
+  0%, 100% { box-shadow: 0 0 5px var(--neon-purple); }
+  50% { box-shadow: 0 0 15px var(--neon-purple); }
+}
+
+.points-label {
+  display: block;
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.points-value {
+  font-family: var(--font-pixel);
+  font-size: 18px;
+  color: var(--neon-purple);
+  font-weight: bold;
+}
+
+.has-points .points-value {
+  color: var(--neon-cyan);
+}
+
+/* Points notification popup */
+.points-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
+  padding: 20px 30px;
+  border-radius: 8px;
+  text-align: center;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 30px rgba(191, 0, 255, 0.5);
+}
+
+.points-notification.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.points-earned {
+  display: block;
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.points-hint {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* ==========================================

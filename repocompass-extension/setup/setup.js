@@ -466,10 +466,15 @@ async function completeSetup() {
 
   // Save to storage
   try {
+    // Calculate remaining points (unspent from setup)
+    const remainingPoints = setupState.availablePoints - setupState.usedPoints;
+    
     const playerStats = {
       name: setupState.playerName || 'HERO_DEV',
       skills: setupState.skills,
-      savedIdeas: []
+      savedIdeas: [],
+      completedProjects: 0,
+      availablePoints: remainingPoints  // Save unspent points
     };
 
     const settings = {
@@ -489,7 +494,8 @@ async function completeSetup() {
 
     console.log('[RepoComPass Setup] Setup completed and saved:', {
       playerStats,
-      settings
+      settings,
+      remainingPoints
     });
 
     // Redirect to main popup after animation
