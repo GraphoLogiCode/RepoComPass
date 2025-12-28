@@ -12,7 +12,8 @@ const API_CONFIG = {
   },
   openai: {
     baseUrl: 'https://api.openai.com/v1',
-    model: 'gpt-4-turbo-preview'
+    modelPrimary: 'gpt-5-mini',
+    modelFallback: 'gpt-4-mini'
   }
 };
 
@@ -241,7 +242,7 @@ async function generateIdeas(data) {
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: API_CONFIG.openai.model,
+        model: API_CONFIG.openai.modelPrimary,
         messages: [
           {
             role: 'system',
