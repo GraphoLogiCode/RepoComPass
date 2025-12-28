@@ -272,18 +272,18 @@ async function handleMessage(request, sender) {
       return { success: true };
 
     case 'openPopup':
-      // Open the extension popup - requires an active browser window
+      // Open the popup as a standalone window (stays open until user closes)
       try {
-        const windows = await chrome.windows.getAll({ windowTypes: ['normal'] });
-        if (windows.length === 0) {
-          // No browser window available, show badge instead
-          chrome.action.setBadgeText({ text: '!' });
-          chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
-          return { success: false, error: 'No active browser window' };
-        }
-        await chrome.action.openPopup();
+        const popupUrl = chrome.runtime.getURL('popup/popup.html');
+        await chrome.windows.create({
+          url: popupUrl,
+          type: 'popup',
+          width: 420,
+          height: 600,
+          focused: true
+        });
       } catch (err) {
-        console.error('Failed to open popup:', err);
+        console.error('Failed to open popup window:', err);
         // Fallback: show badge to guide user
         chrome.action.setBadgeText({ text: '!' });
         chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
