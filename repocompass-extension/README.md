@@ -1,176 +1,253 @@
 # 🧭 RepoComPass
 
-A Chrome extension that generates personalized portfolio project recommendations based on job postings and hiring manager insights.
+A gamified Chrome extension that generates personalized portfolio project recommendations based on job postings and hiring manager insights.  Level up your career with an epic, retro arcade experience!
 
-## Features
+## ✨ Features
 
-- **Job Posting Analysis**: Automatically extracts job requirements, technologies, and company info from LinkedIn, Indeed, and Glassdoor
-- **Hiring Manager Insights**: Searches for the hiring manager's GitHub profile to understand their tech interests
-- **AI-Powered Recommendations**: Uses OpenAI GPT-4 to generate tailored project ideas that align with job requirements and hiring manager preferences
-- **Save & Track**: Save project ideas for different job applications
-- **Privacy-First**: "Bring Your Own Key" model - your API keys stay local
+### 🎮 Gamification & RPG System
+- **Skill Point System**: Track your expertise across 9 technical domains
+- **Character Progression**: Evolve from "Apprentice Dev" to "Legendary Dev"
+- **XP & Levels**: Gain experience by analyzing jobs and generating ideas
+- **Custom Player Profile**: Create your unique developer persona
 
-## Installation
+### 🔍 Job Analysis
+- **Automated Extraction**: Scrapes job requirements from LinkedIn, Indeed, and Glassdoor
+- **Company Intelligence**: Analyzes hiring manager GitHub profiles to understand tech preferences
+- **AI-Powered Matching**: Uses OpenAI GPT-4o-mini to generate tailored project recommendations
+
+### 💡 Project Generation
+- **Personalized Ideas**: AI creates project suggestions aligned with: 
+  - Job requirements and tech stack
+  - Your current skill levels
+  - Hiring manager's interests
+- **Save & Track**: Build your portfolio idea collection
+- **Smart Caching**: Reduces API costs with intelligent data caching
+
+### 🎨 Retro Arcade Experience
+- **80s Arcade Aesthetics**: Neon colors, pixel fonts, CRT effects
+- **Animated UI**: Smooth transitions, glowing buttons, scanline overlays
+- **Sound Effects**: Optional retro audio feedback (configurable)
+- **Dark Mode**: Easy on the eyes for late-night job hunting
+
+### 🔒 Privacy & Security
+- **Bring Your Own Key**: Your API keys stay local in browser storage
+- **No Tracking**: Zero analytics or data collection
+- **Open Source**:  Fully transparent codebase
+
+## 📦 Installation
 
 ### For Development
 
-1. Clone or download this repository
-2. Open Chrome and navigate to `chrome://extensions/`
-3. Enable "Developer mode" in the top right
-4. Click "Load unpacked" and select the `repocompass` folder
-5. The extension icon should appear in your toolbar
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/GraphoLogiCode/RepoComPass. git
+   cd RepoComPass/repocompass-extension
+   ```
 
-### Setting Up API Keys
+2. **Load in Chrome**
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable **Developer mode** (toggle in top right)
+   - Click **"Load unpacked"**
+   - Select the `repocompass-extension` folder
 
-1. Click the RepoComPass icon and go to **Settings**
-2. Add your API keys:
-   - **OpenAI API Key** (required): Get from [OpenAI Platform](https://platform.openai.com/api-keys)
-   - **GitHub Token** (optional): Get from [GitHub Settings](https://github.com/settings/tokens)
-   - **SerpAPI Key** (optional): Get from [SerpAPI](https://serpapi.com/manage-api-key)
+3. **Extension icon appears** in your toolbar 🎮
 
-## Usage
+### First-Time Setup
 
-1. Navigate to a job posting on:
-   - LinkedIn Jobs
-   - Indeed
-   - Glassdoor
+When you first open RepoComPass, you'll go through a 5-step guided setup:
 
-2. Click the RepoComPass extension icon (or the floating 🧭 button)
+1. **Welcome**:  Introduction to features
+2. **Player Name**: Choose your developer handle (3-16 chars)
+3. **API Keys**: Add your OpenAI API key (required for AI features)
+4. **Skill Allocation**:  Distribute 10 initial skill points across domains
+5. **Ready**:  Complete setup and start your quest!
 
-3. The extension will:
-   - Extract job details and requirements
-   - Search for the hiring manager's GitHub profile
-   - Analyze their tech interests and recent projects
+### Getting API Keys
 
-4. Click **"Generate Project Ideas"** to get personalized recommendations
+#### OpenAI API Key (Required)
+- Sign up at [OpenAI Platform](https://platform.openai.com/)
+- Navigate to [API Keys](https://platform.openai.com/api-keys)
+- Create a new key (starts with `sk-`)
+- **Cost**: ~$0.01-0.03 per job analysis (using gpt-4o-mini)
 
-5. Save ideas you like for future reference
 
-## Project Structure
+
+## 🎯 Usage
+
+### Analyzing a Job Posting
+
+1. **Navigate** to a job posting on: 
+   - LinkedIn Jobs (`linkedin.com/jobs/... `)
+   - Indeed (`indeed.com/... `)
+   - Glassdoor (`glassdoor.com/...`)
+
+2. **Open Extension**
+   - Click the 🎮 icon in your toolbar
+   - Or click the floating 🧭 button on the page
+
+3. **Analyze Job**
+   - Extension auto-extracts job details
+   - Click **"SEARCH COMPANY"** to find hiring manager
+   - View extracted requirements and tech stack
+
+4. **Generate Ideas**
+   - Click **"GENERATE PROJECT IDEAS"**
+   - AI creates 3-5 personalized project suggestions
+   - Each idea includes:
+     - Project title and description
+     - Key features to implement
+     - Tech stack recommendations
+     - Estimated difficulty level
+
+5. **Save Ideas**
+   - Click 💾 on ideas you like
+   - Access saved ideas in the **"IDEAS"** tab
+
+### Managing Your Stats
+
+Visit the **"STATS"** tab to:
+- View your current skill levels across 9 domains
+- Track total XP and character level
+- See your character class (e.g., "Code Warrior")
+- Increase skill points by analyzing more jobs
+
+### Customizing Settings
+
+In the **"CONFIG"** tab:
+- **API Keys**: Update OpenAI/GitHub tokens
+- **Enable Cache**: Reduce API costs (24hr cache)
+- **Auto-Analyze**: Automatically detect job pages
+- **Sound Effects**: Toggle retro audio
+- **CRT Effects**: Enable/disable scanline overlay
+
+## 🏗️ Project Structure
 
 ```
-repocompass/
-├── manifest.json          # Extension configuration
+repocompass-extension/
+├── manifest.json              # Extension configuration
 ├── popup/
-│   ├── popup.html        # Main popup UI
-│   ├── popup.css         # Popup styles
-│   └── popup.js          # Popup logic
+│   ├── popup.html            # Main popup UI
+│   ├── popup.css             # Retro arcade styles
+│   └── popup.js              # Core logic & state management
+├── setup/
+│   ├── setup.html            # First-time onboarding UI
+│   ├── setup. css             # Setup page styles
+│   └── setup. js              # Setup flow logic & validation
 ├── background/
-│   └── service-worker.js # Background API handling
+│   └── service-worker.js     # Background API handling
 ├── content/
-│   └── content-script.js # Job page scraping
+│   └── content-script.js     # Job page scraping logic
 ├── styles/
-│   └── content.css       # Content script styles
-├── utils/
-│   └── helpers.js        # Utility functions
-├── icons/                # Extension icons
-├── welcome.html          # Onboarding page
-└── README.md
+│   └── content. css           # Injected page styles
+├── icons/                    # Extension icons (16/48/128px)
+├── welcome. html              # Post-setup welcome screen
+├── welcome.js                # Welcome animations
+├── SETUP_TESTING.md          # Setup flow testing guide
+└── README.md                 # This file
 ```
 
-## Architecture
+## 🔧 Technical Architecture
 
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Job Sites     │────▶│  Content Script  │────▶│     Popup       │
-│ (LinkedIn, etc) │     │  (Data Extract)  │     │   (UI/Display)  │
-└─────────────────┘     └──────────────────┘     └────────┬────────┘
-                                                          │
-                                                          ▼
-                                               ┌──────────────────┐
-                                               │ Service Worker   │
-                                               │ (Background)     │
-                                               └────────┬─────────┘
-                                                        │
-                        ┌───────────────────────────────┼───────────────────────────────┐
-                        ▼                               ▼                               ▼
-               ┌─────────────────┐            ┌─────────────────┐            ┌─────────────────┐
-               │   GitHub API    │            │    SerpAPI      │            │   OpenAI API    │
-               │ (Profile/Repos) │            │ (Search Person) │            │ (Generate Ideas)│
-               └─────────────────┘            └─────────────────┘            └─────────────────┘
-```
 
-## Privacy & Ethics
+### Data Flow
 
-### What We DO:
-- ✅ Use public GitHub data via their official API
-- ✅ Extract job posting info from pages you're viewing
-- ✅ Store your settings locally in your browser
-- ✅ Let you use your own API keys
+1. **Content Script** → Extracts job data from DOM
+2. **Popup** → Displays data, sends API requests via service worker
+3. **Service Worker** → Makes authenticated API calls (CORS bypass)
+4. **Chrome Storage** → Persists settings, stats, saved ideas
 
-### What We DON'T DO:
-- ❌ Scrape LinkedIn profiles (violates their ToS)
-- ❌ Store your API keys on any server
-- ❌ Track your job search activity
-- ❌ Share your data with third parties
+## 📊 Skill Domains
 
-## Cost Considerations
+RepoComPass tracks 9 technical skill categories:
 
-| API | Free Tier | Paid Rates |
-|-----|-----------|------------|
-| GitHub API | 60 req/hr (unauth), 5000/hr (auth) | Free with token |
-| Google Programmable Search | 100 queries/day | $5 per 1000 queries |
-| SerpAPI | Limited free trial | ~$75/mo for 5000 searches |
-| OpenAI GPT-4 | Pay as you go | ~$0.03-0.06 per 1K tokens |
+| Skill | Icon | Description |
+|-------|------|-------------|
+| **Data Structures** | 🗃️ | Arrays, Trees, Graphs, Hash Tables |
+| **Algorithms** | 🧮 | Sorting, Searching, Dynamic Programming |
+| **Systems/OS** | 🖥️ | Operating Systems, Memory, Processes |
+| **Databases** | 🗄️ | SQL, NoSQL, Query Optimization |
+| **Networking** | 🌐 | TCP/IP, HTTP, APIs, Security |
+| **Frontend** | 🎨 | HTML, CSS, JavaScript, React, UI/UX |
+| **Backend** | ⚙️ | Servers, REST APIs, Microservices |
+| **AI/ML** | 🤖 | Machine Learning, Neural Networks |
+| **Math/Probability** | 📐 | Statistics, Linear Algebra, Calculus |
 
-### Tips to Reduce Costs:
-- Enable caching (on by default)
-- Use GitHub token for higher rate limits
-- The extension caches hiring manager data for 24 hours
+## 💰 Cost Considerations
 
-## Troubleshooting
+| API | Free Tier | Typical Cost |
+|-----|-----------|--------------|
+| **OpenAI GPT-4o-mini** | $5 free credit | ~$0.01-0.03 per job |
+| **GitHub API** | 60/hr (unauth), 5000/hr (auth) | Free with token |
+| **Google Custom Search** | 100 queries/day | $5 per 1000 queries |
+
+### Cost Optimization Tips
+- ✅ **Enable caching** (on by default) - saves 70%+ on repeat searches
+- ✅ **Use GitHub token** - increases rate limits to 5000/hr
+- ✅ **Analyze strategically** - focus on jobs you're serious about
+
+## 🐛 Troubleshooting
 
 ### "Could not extract job information"
-- Make sure you're on a job posting page (not a job search results page)
-- Try refreshing the page and waiting a few seconds
-- Some job postings may have unusual layouts
+- ✓ Ensure you're on a **job detail page** (not search results)
+- ✓ Try refreshing the page and waiting 2-3 seconds
+- ✓ Some job sites have dynamic layouts that may not work
 
-### "OpenAI API key is required"
-- Go to Settings and add your OpenAI API key
-- Make sure the key is valid and has available credits
+### "OpenAI API key invalid"
+- ✓ Check key format (starts with `sk-`)
+- ✓ Verify key is active in OpenAI dashboard
+- ✓ Ensure you have available credits
 
-### Rate Limit Errors
-- Wait a few minutes and try again
-- Add a GitHub token in settings for higher limits
-- Enable caching to reduce API calls
+### "Rate limit exceeded"
+- ✓ Wait 5-10 minutes before retrying
+- ✓ Add GitHub token in settings for higher limits
+- ✓ Check if caching is enabled
 
-## Development
+### Extension not appearing
+- ✓ Verify "Developer mode" is enabled
+- ✓ Check for errors in `chrome://extensions/`
+- ✓ Try reloading the extension
 
-### Building for Production
+## 🚀 Development
 
-```bash
-npm run build    # Copies files to dist/
-npm run zip      # Creates extension zip file
-```
+### Prerequisites
+- Chrome/Chromium browser (v88+)
+- Text editor (VS Code recommended)
+- Basic knowledge of JavaScript, HTML, CSS
 
-### Testing Changes
+### Making Changes
 
-1. Make your changes
-2. Go to `chrome://extensions/`
-3. Click the refresh icon on the RepoComPass card
-4. Test your changes
+1. **Edit files** in `repocompass-extension/`
+2. **Reload extension**: 
+   - Go to `chrome://extensions/`
+   - Click refresh icon on RepoComPass card
+3. **Test changes** on a job posting page
+4. **Check logs**:  Right-click popup → Inspect → Console
 
-## Contributing
+### Testing Setup Flow
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+See `SETUP_TESTING.md` for comprehensive testing instructions.
 
-## License
+### Key Files to Modify
+
+- **`popup/popup.js`** - Core logic, API calls, skill system
+- **`popup/popup.css`** - Visual styles, animations
+- **`content/content-script.js`** - Job scraping logic
+- **`background/service-worker.js`** - API proxy, CORS handling
+
+## 📜 License
 
 MIT License - see LICENSE file for details
 
-## Roadmap
+## 🙏 Acknowledgments
 
-- [ ] Support for more job sites (Wellfound, Greenhouse, Lever)
-- [ ] Browser action for quick idea generation
-- [ ] Export ideas to markdown/PDF
-- [ ] Integration with task managers (Notion, Todoist)
-- [ ] Team/shared idea collections
-- [ ] Analytics on saved ideas
+- Built with ❤️ for job seekers who want to stand out
+- Powered by OpenAI GPT-4o-mini, GitHub API
 
 ---
 
-Built with ❤️ for job seekers who want to stand out
+**Ready to level up your career?** Install RepoComPass and start your quest!  🎮🚀
+
+```
+GAME OVER?  NO, GAME ON!  
+INSERT COIN TO CONTINUE... 
+```
