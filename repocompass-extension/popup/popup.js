@@ -693,8 +693,35 @@ async function saveConfig() {
   const newName = elements.configPlayerName.value.trim().toUpperCase() || 'HERO_DEV';
   playerStats.name = newName;
 
+  const apiKey = elements.openaiKey.value.trim();
+  
+  // Validate API key if provided
+  if (apiKey) {
+    showConfigStatus('VALIDATING API KEY...', 'info');
+    elements.saveConfigBtn.disabled = true;
+    
+    try {
+      const validation = await chrome.runtime.sendMessage({
+        action: 'validateApiKey',
+        data: { apiKey }
+      });
+      
+      if (!validation.success) {
+        showConfigStatus(`API KEY ERROR: ${validation.error}`, 'error');
+        playSound('error');
+        elements.saveConfigBtn.disabled = false;
+        return; // Don't save if API key is invalid
+      }
+    } catch (error) {
+      showConfigStatus('API KEY VALIDATION FAILED', 'error');
+      playSound('error');
+      elements.saveConfigBtn.disabled = false;
+      return;
+    }
+  }
+
   const settings = {
-    openaiKey: elements.openaiKey.value.trim(),
+    openaiKey: apiKey,
     enableCache: elements.enableCache.checked,
     autoAnalyze: elements.autoAnalyze.checked,
     enableSounds: elements.enableSounds.checked,
@@ -705,7 +732,8 @@ async function saveConfig() {
   await savePlayerStats();
 
   updatePlayerBar();
-  showConfigStatus('CONFIG SAVED!', 'success');
+  elements.saveConfigBtn.disabled = false;
+  showConfigStatus('CONFIG SAVED! API KEY VALID ✓', 'success');
   playSound('save');
 }
 

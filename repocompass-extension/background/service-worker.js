@@ -28,6 +28,9 @@ async function handleMessage(request, sender) {
     case 'generateIdeas':
       return await generateIdeas(request.data);
 
+    case 'validateApiKey':
+      return await validateApiKey(request.data.apiKey);
+
     case 'autoAnalyze':
       // Store for quick access
       await chrome.storage.session.set({ lastJobData: request.data });
@@ -167,13 +170,39 @@ Return ONLY a valid JSON object with this structure:
     }
 
     const result = await response.json();
-    // Responses API returns output instead of choices
-    const content = result.output?.[0]?.content || result.choices?.[0]?.message?.content;
-    const companyData = JSON.parse(content);
+    
+    // Responses API output structure: output[].content[] where each content item has type and text
+    // Find the text content from the output
+    let textContent = null;
+    if (result.output && Array.isArray(result.output)) {
+      for (const outputItem of result.output) {
+        if (outputItem.type === 'message' && outputItem.content) {
+          for (const contentItem of outputItem.content) {
+            if (contentItem.type === 'output_text' || contentItem.type === 'text') {
+              textContent = contentItem.text;
+              break;
+            }
+          }
+        }
+        if (textContent) break;
+      }
+    }
+    
+    // Fallback for Chat Completions API format
+    if (!textContent && result.choices?.[0]?.message?.content) {
+      textContent = result.choices[0].message.content;
+    }
+    
+    if (!textContent) {
+      console.error('Unexpected API response structure:', JSON.stringify(result, null, 2));
+      throw new Error('Could not parse API response');
+    }
+    
+    const companyData = JSON.parse(textContent);
 
     // Log if tools were used
-    if (result.tool_calls?.length > 0) {
-      console.log('Tools used:', result.tool_calls.map(t => t.type).join(', '));
+    if (result.usage?.web_search_requests > 0) {
+      console.log('Web search was used for this request');
     }
 
     return companyData;
@@ -235,19 +264,45 @@ async function generateIdeas(data) {
     }
 
     const result = await response.json();
-    // Responses API returns output instead of choices
-    const responseContent = result.output?.[0]?.content || result.choices?.[0]?.message?.content;
-    const content = JSON.parse(responseContent);
+    
+    // Responses API output structure: output[].content[] where each content item has type and text
+    let textContent = null;
+    if (result.output && Array.isArray(result.output)) {
+      for (const outputItem of result.output) {
+        if (outputItem.type === 'message' && outputItem.content) {
+          for (const contentItem of outputItem.content) {
+            if (contentItem.type === 'output_text' || contentItem.type === 'text') {
+              textContent = contentItem.text;
+              break;
+            }
+          }
+        }
+        if (textContent) break;
+      }
+    }
+    
+    // Fallback for Chat Completions API format
+    if (!textContent && result.choices?.[0]?.message?.content) {
+      textContent = result.choices[0].message.content;
+    }
+    
+    if (!textContent) {
+      console.error('Unexpected API response structure:', JSON.stringify(result, null, 2));
+      throw new Error('Could not parse API response');
+    }
+    
+    const content = JSON.parse(textContent);
 
-    // Log if tools were used for debugging
-    if (result.tool_calls?.length > 0) {
-      console.log('AI used tools:', result.tool_calls.map(t => t.type).join(', '));
+    // Log if web search was used
+    const webSearchUsed = result.usage?.web_search_requests > 0;
+    if (webSearchUsed) {
+      console.log('Web search was used for idea generation');
     }
 
     return {
       success: true,
       ideas: content.projects || content.ideas || [],
-      toolsUsed: result.tool_calls?.map(t => t.type) || []
+      webSearchUsed
     };
   } catch (error) {
     console.error('OpenAI error:', error);
@@ -366,6 +421,40 @@ ${jobData?.experienceRequired ? `${jobData.experienceRequired}+ years` : 'Not sp
 async function getSettings() {
   const result = await chrome.storage.local.get('settings');
   return result.settings || {};
+}
+
+// Validate OpenAI API key by making a simple models request
+async function validateApiKey(apiKey) {
+  if (!apiKey || apiKey.trim() === '') {
+    return { success: false, error: 'API key is empty' };
+  }
+
+  try {
+    // Use the models endpoint for a lightweight validation
+    const response = await fetch(`${API_CONFIG.openai.baseUrl}/models`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+
+    if (response.ok) {
+      return { success: true, message: 'API key is valid' };
+    }
+
+    const error = await response.json();
+    
+    if (response.status === 401) {
+      return { success: false, error: 'Invalid API key' };
+    } else if (response.status === 429) {
+      return { success: false, error: 'Rate limited - but key appears valid' };
+    } else {
+      return { success: false, error: error.error?.message || 'API validation failed' };
+    }
+  } catch (error) {
+    console.error('API key validation error:', error);
+    return { success: false, error: 'Network error - could not validate key' };
+  }
 }
 
 // Rate limiting helper
