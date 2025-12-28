@@ -461,11 +461,15 @@ async function checkCurrentTab() {
         if (response && response.success) {
           currentJobData = response.data;
           displayJobInfo(currentJobData);
-          await analyzeCompany(currentJobData);
+          // Show "Ready to generate" status - NO auto-analysis
+          updateStatus('ready', '✨', 'READY TO GENERATE QUEST ITEMS!');
+          if (elements.generateBtn) {
+            elements.generateBtn.disabled = false;  // Enable button immediately
+          }
         } else {
           console.error('[RepoComPass] Content script returned error:', response?.error);
           updateStatus('error', '❌', response?.error || 'QUEST DATA CORRUPTED. TRY REFRESHING THE DUNGEON.');
-          // Still enable the button so user can retry
+          // Disable button on error
           if (elements.generateBtn) {
             elements.generateBtn.disabled = true;
           }
@@ -618,19 +622,16 @@ function displayCompanyInfo(companyData) {
   }
 }
 
-// Generate Ideas Button
+// Generate Ideas Button - Now includes company analysis
 elements.generateBtn?.addEventListener('click', async () => {
   const btnText = elements.generateBtn.querySelector('.btn-text');
   const btnLoader = elements.generateBtn.querySelector('.btn-loader');
-  
-  btnText.textContent = 'GENERATING...';
-  btnLoader.classList.remove('hidden');
+
   elements.generateBtn.disabled = true;
   elements.errorMessage.classList.add('hidden');
-
   playSound('generate');
 
-  console.log('[RepoComPass] Generate Ideas: Starting generation process');
+  console.log('[RepoComPass] Generate Ideas: Starting two-step process (analyze + generate)');
   console.log('[RepoComPass] Current State:', {
     hasJobData: !!currentJobData,
     jobTitle: currentJobData?.title,
@@ -652,13 +653,54 @@ elements.generateBtn?.addEventListener('click', async () => {
       throw new Error('NO JOB DATA! Please navigate to a job posting first.');
     }
 
+    // Step 1: Analyze company (if not already done)
+    if (!currentCompanyData || !currentCompanyData.company) {
+      btnText.textContent = 'ANALYZING COMPANY...';
+      btnLoader.classList.remove('hidden');
+      updateStatus('analyzing', '🔍', 'RESEARCHING COMPANY INTELLIGENCE...');
+
+      console.log('[RepoComPass] Step 1: Analyzing company...');
+
+      const companyResponse = await chrome.runtime.sendMessage({
+        action: 'analyzeCompany',
+        data: {
+          company: currentJobData.company,
+          jobDescription: currentJobData.description,
+          jobTitle: currentJobData.title
+        }
+      });
+
+      if (companyResponse.success && companyResponse.data) {
+        currentCompanyData = companyResponse.data;
+        displayCompanyInfo(currentCompanyData);
+        console.log('[RepoComPass] Company analysis completed successfully');
+      } else {
+        // Use empty fallback if company analysis fails
+        console.warn('[RepoComPass] Company analysis failed, using fallback data');
+        currentCompanyData = {
+          company: currentJobData.company,
+          website: null,
+          engineeringBlog: null,
+          techStack: [],
+          recentProjects: [],
+          insights: []
+        };
+      }
+    } else {
+      console.log('[RepoComPass] Company data already available, skipping analysis');
+    }
+
+    // Step 2: Generate project ideas
+    btnText.textContent = 'GENERATING IDEAS...';
+    updateStatus('analyzing', '⚡', 'FORGING QUEST ITEMS...');
+
+    console.log('[RepoComPass] Step 2: Generating project ideas...');
     console.log('[RepoComPass] Sending generateIdeas request with:', {
       jobData: currentJobData,
       companyData: currentCompanyData,
       playerStats: playerStats.skills
     });
 
-    // Include player stats and company data in the generation request
     const response = await chrome.runtime.sendMessage({
       action: 'generateIdeas',
       data: {
@@ -677,30 +719,12 @@ elements.generateBtn?.addEventListener('click', async () => {
       isArray: Array.isArray(response.ideas)
     });
 
-    if (response.success) {
-      // Validate response structure
-      if (!response.ideas) {
-        console.error('[RepoComPass] Generate Ideas: response.ideas is null/undefined');
-        throw new Error('SERVER ERROR: No ideas data in response');
-      }
-
-      if (!Array.isArray(response.ideas)) {
-        console.error('[RepoComPass] Generate Ideas: response.ideas is not an array', {
-          type: typeof response.ideas,
-          value: response.ideas
-        });
-        throw new Error('SERVER ERROR: Invalid ideas format (expected array)');
-      }
-
-      if (response.ideas.length === 0) {
-        console.warn('[RepoComPass] Generate Ideas: Empty ideas array returned');
-        throw new Error('NO IDEAS GENERATED. Try adjusting your stats or check API.');
-      }
-
+    if (response.success && response.ideas && response.ideas.length > 0) {
       displayProjectIdeas(response.ideas);
+      updateStatus('success', '🎉', 'QUEST ITEMS GENERATED!');
       playSound('success');
     } else {
-      throw new Error(response.error || 'GENERATION FAILED');
+      throw new Error(response.error || 'NO IDEAS GENERATED');
     }
   } catch (error) {
     console.error('[RepoComPass] Generate Ideas: Error occurred', {
@@ -708,6 +732,7 @@ elements.generateBtn?.addEventListener('click', async () => {
       error: error
     });
     showError(error.message);
+    updateStatus('error', '❌', error.message);
     playSound('error');
   } finally {
     btnText.textContent = 'GENERATE QUEST ITEMS';

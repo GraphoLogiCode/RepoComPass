@@ -538,10 +538,14 @@ function injectQuickAccessButton() {
     fab.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
   });
   
-  fab.addEventListener('click', () => {
-    chrome.runtime.sendMessage({ action: 'openPopup' }).catch(err => {
+  fab.addEventListener('click', async () => {
+    // Trigger extension popup by sending message to background script
+    try {
+      await chrome.runtime.sendMessage({ action: 'openExtensionPopup' });
+    } catch (err) {
       console.error('[RepoComPass] Error opening popup:', err);
-    });
+      console.log('[RepoComPass] Please click the extension icon to open RepoComPass');
+    }
   });
   
   document.body.appendChild(fab);

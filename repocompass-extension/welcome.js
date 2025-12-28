@@ -1,4 +1,4 @@
-// Welcome page animation script
+// Welcome page animation and setup script
 document.addEventListener('DOMContentLoaded', () => {
   // Animate skill bars on load
   setTimeout(() => {
@@ -10,4 +10,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }, i * 200);
     });
   }, 500);
+
+  // Handle "START YOUR QUEST" button click
+  const startButton = document.querySelector('.start-btn');
+  if (startButton) {
+    startButton.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevent default link behavior
+
+      // Open setup page in a popup window
+      chrome.windows.create({
+        url: chrome.runtime.getURL('setup/setup.html'),
+        type: 'popup',
+        width: 500,
+        height: 700
+      });
+    });
+  }
 });

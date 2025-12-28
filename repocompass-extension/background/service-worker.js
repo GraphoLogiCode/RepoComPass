@@ -334,13 +334,24 @@ async function handleMessage(request, sender) {
       await chrome.storage.session.set({ lastJobData: request.data });
       return { success: true };
 
+    case 'openExtensionPopup':
+      // Open the extension popup (same as clicking the extension icon)
+      // Note: chrome.action.openPopup() can only be called from service worker in response to user action
+      try {
+        await chrome.action.openPopup();
+      } catch (err) {
+        console.error('[RepoComPass] Failed to open popup programmatically:', err);
+        // Fallback: If openPopup fails, user needs to click the extension icon manually
+      }
+      return { success: true };
+
     case 'openPopup':
-      // Open popup page in a new tab
+      // Legacy action for opening in new tab (kept for backward compatibility)
       try {
         const popupUrl = chrome.runtime.getURL('popup/popup.html');
         await chrome.tabs.create({ url: popupUrl });
       } catch (err) {
-        console.error('Failed to open popup:', err);
+        console.error('[RepoComPass] Failed to open popup in new tab:', err);
       }
       return { success: true };
 
@@ -833,18 +844,10 @@ chrome.runtime.onInstalled.addListener((details) => {
       },
       savedIdeas: []
     });
-    
-    // Open setup page as floating popup window
-    chrome.windows.create({
-      url: chrome.runtime.getURL('setup/setup.html'),
-      type: 'popup',
-      width: 500,
-      height: 700
+
+    // Open welcome page in a new tab (first-time only)
+    chrome.tabs.create({
+      url: chrome.runtime.getURL('welcome.html')
     });
   }
-});
-
-// Clear badge when popup opens
-chrome.action.onClicked.addListener(() => {
-  chrome.action.setBadgeText({ text: '' });
 });
