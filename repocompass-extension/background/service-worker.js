@@ -5,7 +5,7 @@ const API_CONFIG = {
   openai: {
     baseUrl: 'https://api.openai.com/v1',
     modelPrimary: 'gpt-5-mini-2025-08-07',
-    modelFallback: 'gpt-4.1-mini'
+    useResponsesAPI: true // Enable Responses API for tool support (file search, web search)
   },
   serpApi: {
     baseUrl: 'https://serpapi.com/search'
@@ -131,26 +131,29 @@ Return ONLY a valid JSON object with this structure:
 }`;
 
   try {
-    const response = await fetch(`${API_CONFIG.openai.baseUrl}/chat/completions`, {
+    // Use Responses API with file_search tool for enhanced research
+    const response = await fetch(`${API_CONFIG.openai.baseUrl}/responses`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: API_CONFIG.modelPrimary,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a company research assistant that provides accurate, factual information about companies and their technology practices. Always respond with valid JSON.'
-          },
+        model: API_CONFIG.openai.modelPrimary,
+        modalities: ['text'],
+        instructions: 'You are a company research assistant that provides accurate, factual information about companies and their technology practices. Use file search to find relevant information when available. Always respond with valid JSON.',
+        input: [
           {
             role: 'user',
             content: prompt
           }
         ],
+        tools: [
+          { type: 'file_search' }, // Enable file search for better research
+          { type: 'web_search' }    // Enable web search for real-time data
+        ],
         temperature: 0.3,
-        max_tokens: 2000,
+        max_output_tokens: 2000,
         response_format: { type: 'json_object' }
       })
     });
@@ -161,7 +164,14 @@ Return ONLY a valid JSON object with this structure:
     }
 
     const result = await response.json();
-    const companyData = JSON.parse(result.choices[0].message.content);
+    // Responses API returns output instead of choices
+    const content = result.output?.[0]?.content || result.choices?.[0]?.message?.content;
+    const companyData = JSON.parse(content);
+
+    // Log if tools were used
+    if (result.tool_calls?.length > 0) {
+      console.log('Tools used:', result.tool_calls.map(t => t.type).join(', '));
+    }
 
     return companyData;
   } catch (error) {
@@ -181,7 +191,8 @@ async function generateIdeas(data) {
   const prompt = buildPrompt(jobData, companyData, playerStats);
 
   try {
-    const response = await fetch(`${API_CONFIG.openai.baseUrl}/chat/completions`, {
+    // Use Responses API with file_search for better context
+    const response = await fetch(`${API_CONFIG.openai.baseUrl}/responses`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -189,10 +200,8 @@ async function generateIdeas(data) {
       },
       body: JSON.stringify({
         model: API_CONFIG.openai.modelPrimary,
-        messages: [
-          {
-            role: 'system',
-            content: `You are a career advisor helping job seekers stand out by suggesting impressive portfolio projects.
+        modalities: ['text'],
+        instructions: `You are a career advisor helping job seekers stand out by suggesting impressive portfolio projects.
             Generate creative, practical project ideas that:
             1. Directly relate to the job requirements and company's tech stack
             2. Demonstrate relevant technical skills the candidate has
@@ -201,15 +210,19 @@ async function generateIdeas(data) {
             5. Stand out from typical portfolio projects
             6. Show understanding of the company's domain and challenges
 
-            Always respond with valid JSON.`
-          },
+            Use file search or web search when you need additional context about the company or technologies. Always respond with valid JSON.`,
+        input: [
           {
             role: 'user',
             content: prompt
           }
         ],
+        tools: [
+          { type: 'file_search' },
+          { type: 'web_search' }
+        ],
         temperature: 0.8,
-        max_tokens: 2000,
+        max_output_tokens: 2000,
         response_format: { type: 'json_object' }
       })
     });
@@ -220,11 +233,19 @@ async function generateIdeas(data) {
     }
 
     const result = await response.json();
-    const content = JSON.parse(result.choices[0].message.content);
+    // Responses API returns output instead of choices
+    const responseContent = result.output?.[0]?.content || result.choices?.[0]?.message?.content;
+    const content = JSON.parse(responseContent);
+
+    // Log if tools were used for debugging
+    if (result.tool_calls?.length > 0) {
+      console.log('AI used tools:', result.tool_calls.map(t => t.type).join(', '));
+    }
 
     return {
       success: true,
-      ideas: content.projects || content.ideas || []
+      ideas: content.projects || content.ideas || [],
+      toolsUsed: result.tool_calls?.map(t => t.type) || []
     };
   } catch (error) {
     console.error('OpenAI error:', error);
