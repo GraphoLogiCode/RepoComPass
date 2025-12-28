@@ -32,8 +32,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 0;
+  margin: 0;
   position: relative;
+  overflow: hidden;
 }
 
 /* CRT Effects */
@@ -74,23 +76,24 @@ body {
 
 /* Main Container */
 .setup-container {
-  width: 100%;
-  max-width: 600px;
-  min-height: min(600px, 100vh);
-  max-height: 100vh;
+  width: 100vw;
+  height: 100vh;
+  max-width: 800px;
+  max-height: 600px;
   background: var(--panel-bg);
   border: 3px solid var(--border);
   border-radius: 8px;
   box-shadow:
     0 0 20px rgba(0, 255, 65, 0.3),
     inset 0 0 30px rgba(0, 255, 65, 0.05);
-  padding: 16px 20px;
+  padding: 24px 28px;
   position: relative;
   z-index: 10;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 /* Custom scrollbar for container */
@@ -117,9 +120,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 5px;
+  padding: 0 8px;
   flex-shrink: 0;
-  margin-bottom: 0;
 }
 
 .progress-step {
@@ -132,15 +134,15 @@ body {
 }
 
 .step-number {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border: 2px solid var(--text-secondary);
   background: var(--dark-bg);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: bold;
   color: var(--text-secondary);
   transition: all 0.3s ease;
@@ -161,10 +163,10 @@ body {
 }
 
 .step-label {
-  font-size: 8px;
+  font-size: 9px;
   color: var(--text-secondary);
   text-align: center;
-  min-width: 45px;
+  min-width: 50px;
   white-space: nowrap;
 }
 
@@ -178,9 +180,9 @@ body {
   height: 2px;
   background: var(--text-secondary);
   opacity: 0.3;
-  margin: 0 -3px;
+  margin: 0 -5px;
   position: relative;
-  top: -14px;
+  top: -16px;
 }
 
 @keyframes pulse-glow {
@@ -195,11 +197,9 @@ body {
 /* Setup Pages */
 .setup-pages {
   position: relative;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  min-height: 400px;
+  overflow: visible;
   flex: 1;
-  padding-right: 5px;
 }
 
 .setup-page {
@@ -223,39 +223,20 @@ body {
   transform: translateX(-100%);
 }
 
-/* Custom scrollbar for pages */
-.setup-pages::-webkit-scrollbar {
-  width: 6px;
-}
-
-.setup-pages::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 3px;
-}
-
-.setup-pages::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 3px;
-}
-
-.setup-pages::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary);
-}
-
 /* Page Content */
 .page-content {
-  padding: 10px 8px;
+  padding: 16px 12px;
 }
 
 .page-header {
   text-align: center;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
 }
 
 .page-icon {
-  font-size: 36px;
+  font-size: 42px;
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   animation: float 3s ease-in-out infinite;
 }
 
@@ -265,21 +246,21 @@ body {
 }
 
 .page-title {
-  font-size: 18px;
+  font-size: 20px;
   color: var(--primary);
   text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
 }
 
 /* Welcome Page */
 .welcome-animation {
   text-align: center;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
 }
 
 .pixel-logo {
-  font-size: 60px;
-  margin-bottom: 10px;
+  font-size: 70px;
+  margin-bottom: 14px;
   animation: logo-bounce 2s ease-in-out infinite;
 }
 
@@ -289,13 +270,13 @@ body {
 }
 
 .game-title {
-  font-size: 26px;
+  font-size: 30px;
   color: var(--primary);
   text-shadow:
     0 0 20px rgba(0, 255, 65, 0.8),
     0 0 40px rgba(0, 255, 65, 0.4);
-  letter-spacing: 2.5px;
-  margin-bottom: 6px;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
 }
 
 .tagline {
@@ -316,58 +297,58 @@ body {
   background: rgba(0, 255, 65, 0.05);
   border: 2px solid rgba(0, 255, 65, 0.2);
   border-radius: 8px;
-  padding: 14px;
+  padding: 18px;
 }
 
 .intro-line {
-  font-size: 15px;
+  font-size: 16px;
   color: var(--primary);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   font-weight: bold;
 }
 
 .intro-desc {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
-  line-height: 1.5;
-  margin-bottom: 14px;
+  line-height: 1.6;
+  margin-bottom: 18px;
 }
 
 .feature-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 12px;
+  gap: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
-  padding: 8px 10px;
+  padding: 10px 12px;
   background: rgba(0, 255, 65, 0.05);
   border-radius: 4px;
   border-left: 3px solid var(--primary);
 }
 
 .feature-icon {
-  font-size: 16px;
+  font-size: 18px;
   flex-shrink: 0;
 }
 
 /* Form Sections */
 .form-section {
-  margin-bottom: 18px;
+  margin-bottom: 24px;
 }
 
 .input-label {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--primary);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   font-weight: bold;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .required-badge {
@@ -626,59 +607,41 @@ body {
 /* Stats Allocation */
 .stats-intro {
   text-align: center;
-  margin-bottom: 16px;
-  padding: 12px;
+  margin-bottom: 20px;
+  padding: 15px;
   background: rgba(0, 255, 65, 0.05);
   border-radius: 8px;
 }
 
 .stats-intro p {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .points-remaining {
   color: var(--warning);
-  font-size: 20px;
+  font-size: 22px;
   font-weight: bold;
   text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
 }
 
 .stats-hint {
-  font-size: 10px !important;
+  font-size: 11px !important;
   opacity: 0.7;
 }
 
 .skills-allocation {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 280px;
-  overflow-y: auto;
-  padding-right: 8px;
-}
-
-/* Custom Scrollbar */
-.skills-allocation::-webkit-scrollbar {
-  width: 6px;
-}
-
-.skills-allocation::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 3px;
-}
-
-.skills-allocation::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 3px;
+  gap: 10px;
 }
 
 .skill-allocation-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
+  padding: 12px 15px;
   background: rgba(0, 255, 65, 0.05);
   border: 2px solid rgba(0, 255, 65, 0.2);
   border-radius: 6px;
@@ -693,37 +656,36 @@ body {
 .skill-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex: 1;
-  min-width: 0;
 }
 
 .skill-icon {
-  font-size: 20px;
+  font-size: 22px;
   flex-shrink: 0;
 }
 
 .skill-name {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-primary);
   font-weight: bold;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .skill-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
 }
 
 .skill-btn {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   background: var(--dark-bg);
   border: 2px solid var(--primary);
   color: var(--primary);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
@@ -732,7 +694,6 @@ body {
   align-items: center;
   justify-content: center;
   font-family: monospace;
-  flex-shrink: 0;
 }
 
 .skill-btn:hover:not(:disabled) {
@@ -753,10 +714,10 @@ body {
 }
 
 .skill-value {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: bold;
   color: var(--primary);
-  min-width: 20px;
+  min-width: 22px;
   text-align: center;
 }
 
@@ -878,15 +839,15 @@ body {
 .setup-navigation {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  padding-top: 12px;
+  gap: 16px;
+  padding-top: 16px;
   border-top: 2px solid rgba(0, 255, 65, 0.2);
   flex-shrink: 0;
 }
 
 .pixel-btn {
-  padding: 10px 20px;
-  font-size: 11px;
+  padding: 12px 24px;
+  font-size: 12px;
   font-family: 'Orbitron', monospace;
   font-weight: bold;
   border: 2px solid;
@@ -897,8 +858,7 @@ body {
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 5px;
+  gap: 6px;
   position: relative;
   overflow: hidden;
 }
@@ -973,103 +933,3 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* Responsive adjustments for smaller viewports */
-@media (max-height: 700px) {
-  .setup-container {
-    padding: 12px 16px;
-    gap: 10px;
-  }
-
-  .page-header {
-    margin-bottom: 12px;
-  }
-
-  .page-icon {
-    font-size: 30px;
-    margin-bottom: 6px;
-  }
-
-  .page-title {
-    font-size: 16px;
-  }
-
-  .pixel-logo {
-    font-size: 50px;
-    margin-bottom: 8px;
-  }
-
-  .game-title {
-    font-size: 22px;
-  }
-
-  .welcome-animation {
-    margin-bottom: 12px;
-  }
-
-  .welcome-text {
-    padding: 12px;
-  }
-
-  .form-section {
-    margin-bottom: 14px;
-  }
-
-  .stats-intro {
-    margin-bottom: 12px;
-    padding: 10px;
-  }
-
-  .skills-allocation {
-    max-height: 220px;
-  }
-}
-
-@media (max-height: 600px) {
-  .setup-container {
-    padding: 10px 14px;
-    gap: 8px;
-  }
-
-  .step-number {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-  }
-
-  .step-label {
-    font-size: 7px;
-  }
-
-  .progress-line {
-    top: -12px;
-  }
-
-  .page-content {
-    padding: 8px 6px;
-  }
-
-  .skills-allocation {
-    max-height: 180px;
-  }
-
-  .skill-allocation-row {
-    padding: 8px 10px;
-  }
-}
-
-/* Extension popup specific adjustments */
-@media (max-width: 450px) {
-  .setup-container {
-    max-width: 100%;
-    border-radius: 6px;
-  }
-
-  .step-label {
-    font-size: 7px;
-    min-width: 40px;
-  }
-
-  .skill-name {
-    font-size: 10px;
-  }
-}
