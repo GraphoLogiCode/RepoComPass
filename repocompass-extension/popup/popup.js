@@ -167,6 +167,16 @@ function initializeElements() {
 // INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', async () => {
+  // Check if this is first launch
+  const isFirstLaunch = await checkFirstLaunch();
+
+  if (isFirstLaunch) {
+    // Redirect to setup page
+    window.location.href = '../setup/setup.html';
+    return;
+  }
+
+  // Normal initialization for returning users
   initializeElements();
   setupTabs();
   setupSkillControls();
@@ -175,6 +185,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   await checkCurrentTab();
   updateAllDisplays();
 });
+
+// ==========================================
+// FIRST LAUNCH DETECTION
+// ==========================================
+async function checkFirstLaunch() {
+  try {
+    const result = await chrome.storage.local.get('setupCompleted');
+
+    // If setupCompleted is not set or is false, this is first launch
+    const isFirstLaunch = !result.setupCompleted;
+
+    console.log('[RepoComPass] First launch check:', {
+      setupCompleted: result.setupCompleted,
+      isFirstLaunch: isFirstLaunch
+    });
+
+    return isFirstLaunch;
+  } catch (error) {
+    console.error('[RepoComPass] Error checking first launch:', error);
+    // On error, assume it's not first launch to avoid redirect loop
+    return false;
+  }
+}
 
 // ==========================================
 // TAB NAVIGATION

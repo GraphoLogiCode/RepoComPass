@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RepoComPass - First Time Setup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="setup.css">
+</head>
+<body>
+  <div class="crt-overlay"></div>
+  <div class="scanlines"></div>
+
+  <div class="setup-container">
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="progress-step active" data-step="1">
+        <div class="step-number">1</div>
+        <div class="step-label">WELCOME</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="2">
+        <div class="step-number">2</div>
+        <div class="step-label">PLAYER</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="3">
+        <div class="step-number">3</div>
+        <div class="step-label">API KEY</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="4">
+        <div class="step-number">4</div>
+        <div class="step-label">STATS</div>
+      </div>
+      <div class="progress-line"></div>
+      <div class="progress-step" data-step="5">
+        <div class="step-number">5</div>
+        <div class="step-label">READY</div>
+      </div>
+    </div>
+
+    <!-- Setup Pages -->
+    <div class="setup-pages">
+
+      <!-- STEP 1: Welcome -->
+      <div class="setup-page active" data-page="1">
+        <div class="page-content">
+          <div class="welcome-animation">
+            <div class="pixel-logo">🎮</div>
+            <h1 class="game-title">REPOCOMPASS</h1>
+            <p class="tagline blink">LEVEL UP YOUR CAREER</p>
+          </div>
+
+          <div class="welcome-text">
+            <p class="intro-line">Welcome, Adventurer!</p>
+            <p class="intro-desc">
+              Transform job hunting into an epic quest. Get personalized project ideas
+              based on your skills and the companies you're targeting.
+            </p>
+
+            <div class="feature-list">
+              <div class="feature-item">
+                <span class="feature-icon">🔍</span>
+                <span>Analyze job postings instantly</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">📊</span>
+                <span>Track your skill progression</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">💡</span>
+                <span>Generate tailored project ideas</span>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">🚀</span>
+                <span>Stand out from the crowd</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Player Name -->
+      <div class="setup-page" data-page="2">
+        <div class="page-content">
+          <div class="page-header">
+            <span class="page-icon">👤</span>
+            <h2 class="page-title">CREATE YOUR HERO</h2>
+          </div>
+
+          <div class="form-section">
+            <label class="input-label">
+              PLAYER NAME <span class="required-badge">REQUIRED</span>
+            </label>
+            <input
+              type="text"
+              id="setupPlayerName"
+              class="pixel-input large"
+              placeholder="ENTER YOUR NAME"
+              maxlength="16"
+              autocomplete="off"
+            >
+            <div class="input-hint">This will be displayed in your player stats (max 16 characters)</div>
+            <div class="error-message hidden" id="nameError"></div>
+          </div>
+
+          <div class="preview-box">
+            <div class="preview-label">PREVIEW</div>
+            <div class="player-preview">
+              <span class="preview-icon">🧙</span>
+              <span class="preview-name" id="namePreview">HERO_DEV</span>
+              <span class="preview-level">LVL 1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: API Keys -->
+      <div class="setup-page" data-page="3">
+        <div class="page-content">
+          <div class="page-header">
+            <span class="page-icon">🔑</span>
+            <h2 class="page-title">CONFIGURE API ACCESS</h2>
+          </div>
+
+          <div class="form-section">
+            <label class="input-label">
+              OPENAI API KEY <span class="required-badge">REQUIRED</span>
+            </label>
+            <div class="input-with-toggle">
+              <input
+                type="password"
+                id="setupOpenaiKey"
+                class="pixel-input large"
+                placeholder="sk-proj-..."
+                autocomplete="off"
+              >
+              <button class="toggle-visibility" data-target="setupOpenaiKey">👁</button>
+            </div>
+            <div class="input-hint">
+              Used for company research and AI-powered project generation
+            </div>
+            <div class="error-message hidden" id="apiKeyError"></div>
+            <div class="success-message hidden" id="apiKeySuccess">
+              <span class="success-icon">✓</span>
+              <span>API KEY VALIDATED SUCCESSFULLY</span>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <div class="info-header">
+              <span class="info-icon">ℹ️</span>
+              <span>HOW TO GET AN API KEY</span>
+            </div>
+            <ol class="info-list">
+              <li>Visit <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a></li>
+              <li>Sign in or create an account</li>
+              <li>Click "Create new secret key"</li>
+              <li>Copy the key and paste it above</li>
+            </ol>
+            <div class="info-note">
+              <span class="note-icon">🔒</span>
+              Your API key is stored locally and never shared
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Initial Stats -->
+      <div class="setup-page" data-page="4">
+        <div class="page-content">
+          <div class="page-header">
+            <span class="page-icon">⚔️</span>
+            <h2 class="page-title">ALLOCATE SKILL POINTS</h2>
+          </div>
+
+          <div class="stats-intro">
+            <p>You have <span class="points-remaining" id="pointsRemaining">10</span> points to distribute.</p>
+            <p class="stats-hint">Rate your current skill level (you can adjust these later)</p>
+          </div>
+
+          <div class="skills-allocation">
+            <div class="skill-allocation-row" data-skill="dataStructures">
+              <div class="skill-info">
+                <span class="skill-icon">🗃️</span>
+                <span class="skill-name">DATA STRUCTURES</span>
+              </div>
+              <div class="skill-controls">
+                <button class="skill-btn minus" disabled>−</button>
+                <span class="skill-value">0</span>
+                <button class="skill-btn plus">+</button>
+              </div>
+            </div>
+
+            <div class="skill-allocation-row" data-skill="algorithms">
+              <div class="skill-info">
+                <span class="skill-icon">🧮</span>
+                <span class="skill-name">ALGORITHMS</span>
+              </div>
+              <div class="skill-controls">
+                <button class="skill-btn minus" disabled>−</button>
+                <span class="skill-value">0</span>
+                <button class="skill-btn plus">+</button>
+              </div>
+            </div>
+
+            <div class="skill-allocation-row" data-skill="systems">
+              <div class="skill-info">
+                <span class="skill-icon">🖥️</span>
+                <span class="skill-name">SYSTEMS / OS</span>
+              </div>
+              <div class="skill-controls">
+                <button class="skill-btn minus" disabled>−</button>
+                <span class="skill-value">0</span>
+                <button class="skill-btn plus">+</button>
+              </div>
+            </div>
+
+            <div class="skill-allocation-row" data-skill="databases">
+              <div class="skill-info">
+                <span class="skill-icon">🗄️</span>
+                <span class="skill-name">DATABASES</span>
+              </div>
+              <div class="skill-controls">
+                <button class="skill-btn minus" disabled>−</button>
+                <span class="skill-value">0</span>
+                <button class="skill-btn plus">+</button>
+              </div>
+            </div>
+
+            <div class="skill-allocation-row" data-skill="networking">
+              <div class="skill-info">
+                <span class="skill-icon">🌐</span>
+                <span class="skill-name">NETWORKING</span>
+              </div>
+              <div class="skill-controls">
+                <button class="skill-btn minus" disabled>−</button>
+                <span class="skill-value">0</span>
+                <button class="skill-btn plus">+</button>
+              </div>
+            </div>
+
+            <div class="skill-allocation-row" data-skill="frontend">
+              <div class="skill-info">
+                <span class="skill-icon">🎨</span>
+                <span class="skill-name">FRONTEND</span>
+              </div>
+              <div class="skill-controls">
+                <button class="skill-btn minus" disabled>−</button>
+                <span class="skill-value">0</span>
+                <button class="skill-btn plus">+</button>
+              </div>
+            </div>
+
+            <div class="skill-allocation-row" data-skill="backend">
+              <div class="skill-info">
+                <span class="skill-icon">⚙️</span>
+                <span class="skill-name">BACKEND</span>
+              </div>
+              <div class="skill-controls">
+                <button class="skill-btn minus" disabled>−</button>
+                <span class="skill-value">0</span>
+                <button class="skill-btn plus">+</button>
+              </div>
+            </div>
+
+            <div class="skill-allocation-row" data-skill="aiMl">
+              <div class="skill-info">
+                <span class="skill-icon">🤖</span>
+                <span class="skill-name">AI / ML</span>
+              </div>
+              <div class="skill-controls">
+                <button class="skill-btn minus" disabled>−</button>
+                <span class="skill-value">0</span>
+                <button class="skill-btn plus">+</button>
+              </div>
+            </div>
+
+            <div class="skill-allocation-row" data-skill="math">
+              <div class="skill-info">
+                <span class="skill-icon">📐</span>
+                <span class="skill-name">MATH / PROBABILITY</span>
+              </div>
+              <div class="skill-controls">
+                <button class="skill-btn minus" disabled>−</button>
+                <span class="skill-value">0</span>
+                <button class="skill-btn plus">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="error-message hidden" id="statsError"></div>
+        </div>
+      </div>
+
+      <!-- STEP 5: Complete -->
+      <div class="setup-page" data-page="5">
+        <div class="page-content">
+          <div class="completion-animation">
+            <div class="success-icon-large">✨</div>
+            <h2 class="completion-title">SETUP COMPLETE!</h2>
+            <p class="completion-message">Your adventure begins now...</p>
+
+            <div class="completion-summary">
+              <div class="summary-item">
+                <span class="summary-label">PLAYER:</span>
+                <span class="summary-value" id="summaryName">HERO_DEV</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">POWER LEVEL:</span>
+                <span class="summary-value" id="summaryPower">10</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">API:</span>
+                <span class="summary-value success">CONFIGURED ✓</span>
+              </div>
+            </div>
+
+            <div class="loading-bar">
+              <div class="loading-bar-fill"></div>
+            </div>
+            <p class="loading-text">Entering the dungeon...</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="setup-navigation">
+      <button class="pixel-btn secondary" id="prevBtn" disabled>
+        <span>◄</span> BACK
+      </button>
+      <button class="pixel-btn primary" id="nextBtn">
+        NEXT <span>►</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="setup.js" type="module"></script>
+</body>
+</html>
