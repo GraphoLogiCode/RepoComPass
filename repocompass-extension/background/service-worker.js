@@ -137,7 +137,7 @@ Return ONLY a valid JSON object with this structure:
   try {
     const requestBody = {
       model: API_CONFIG.openai.modelPrimary,
-      instructions: 'You are a company research assistant that provides accurate, factual information about companies and their technology practices. Use web search to find current information. Always respond with valid JSON.',
+      instructions: 'You are a company research assistant that provides accurate, factual information about companies and their technology practices. Use web search to find current information. IMPORTANT: You must respond with ONLY a valid JSON object, no other text before or after.',
       input: [
         {
           role: 'user',
@@ -148,10 +148,8 @@ Return ONLY a valid JSON object with this structure:
         { type: 'web_search' }
       ],
       temperature: 0.3,
-      max_output_tokens: 2000,
-      text: {
-        format: { type: 'json_object' }
-      }
+      max_output_tokens: 2000
+      // Note: Cannot use JSON mode with web_search, so we instruct via prompt
     };
 
     console.log('[RepoComPass] enrichCompanyWithAI - Request body:', JSON.stringify(requestBody, null, 2).substring(0, 500));
@@ -265,7 +263,8 @@ Generate creative, practical project ideas that:
 5. Stand out from typical portfolio projects
 6. Show understanding of the company's domain and challenges
 
-Use web search when you need current information about the company or technologies. Always respond with valid JSON.`,
+Use web search when you need current information about the company or technologies.
+IMPORTANT: You must respond with ONLY a valid JSON object, no other text before or after.`,
       input: [
         {
           role: 'user',
@@ -276,10 +275,8 @@ Use web search when you need current information about the company or technologi
         { type: 'web_search' }
       ],
       temperature: 0.8,
-      max_output_tokens: 2000,
-      text: {
-        format: { type: 'json_object' }
-      }
+      max_output_tokens: 2000
+      // Note: Cannot use JSON mode with web_search, so we instruct via prompt
     };
 
     console.log('[RepoComPass] generateIdeas - Sending request to OpenAI...');
