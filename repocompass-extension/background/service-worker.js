@@ -800,9 +800,12 @@ chrome.runtime.onInstalled.addListener((details) => {
       savedIdeas: []
     });
     
-    // Open welcome page
-    chrome.tabs.create({
-      url: 'welcome.html'
+    // Open setup page as floating popup window
+    chrome.windows.create({
+      url: chrome.runtime.getURL('setup/setup.html'),
+      type: 'popup',
+      width: 500,
+      height: 700
     });
   }
 });
