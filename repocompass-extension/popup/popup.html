@@ -3,125 +3,445 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RepoComPass</title>
+  <title>RepoComPass - Level Up Your Career!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="container">
-    <header class="header">
-      <h1>🧭 RepoComPass</h1>
-      <p class="tagline">Personalized project ideas for your job search</p>
+  <div class="crt-overlay"></div>
+  <div class="scanlines"></div>
+  
+  <div class="arcade-cabinet">
+    <!-- Header with coin slot aesthetic -->
+    <header class="arcade-header">
+      <div class="header-decoration left">◄►</div>
+      <div class="title-container">
+        <h1 class="game-title">
+          <span class="title-icon">🎮</span>
+          REPOCOMPASS
+        </h1>
+        <p class="subtitle blink">INSERT SKILL TO CONTINUE</p>
+      </div>
+      <div class="header-decoration right">◄►</div>
     </header>
 
-    <!-- Tab Navigation -->
-    <nav class="tabs">
-      <button class="tab active" data-tab="analyze">Analyze</button>
-      <button class="tab" data-tab="saved">Saved Ideas</button>
-      <button class="tab" data-tab="settings">Settings</button>
+    <!-- Player Stats Bar -->
+    <div class="player-bar">
+      <div class="player-info">
+        <span class="player-label">PLAYER:</span>
+        <span class="player-name" id="playerName">HERO_DEV</span>
+      </div>
+      <div class="player-level">
+        <span class="level-label">LVL</span>
+        <span class="level-value" id="totalLevel">1</span>
+      </div>
+      <div class="exp-bar-container">
+        <div class="exp-bar" id="totalExpBar" style="width: 0%"></div>
+        <span class="exp-text" id="expText">0 / 100 XP</span>
+      </div>
+    </div>
+
+    <!-- Tab Navigation - Arcade Buttons -->
+    <nav class="arcade-tabs">
+      <button class="arcade-tab active" data-tab="quest">
+        <span class="tab-icon">⚔️</span>
+        <span class="tab-text">QUEST</span>
+      </button>
+      <button class="arcade-tab" data-tab="stats">
+        <span class="tab-icon">📊</span>
+        <span class="tab-text">STATS</span>
+      </button>
+      <button class="arcade-tab" data-tab="inventory">
+        <span class="tab-icon">🎒</span>
+        <span class="tab-text">INVENTORY</span>
+      </button>
+      <button class="arcade-tab" data-tab="config">
+        <span class="tab-icon">⚙️</span>
+        <span class="tab-text">CONFIG</span>
+      </button>
     </nav>
 
-    <!-- Analyze Tab -->
-    <section id="analyze" class="tab-content active">
-      <div class="status-card" id="statusCard">
-        <div class="status-icon">📋</div>
-        <p id="statusText">Navigate to a job posting to get started</p>
-      </div>
-
-      <div id="jobInfo" class="job-info hidden">
-        <h3 id="jobTitle">Job Title</h3>
-        <p id="companyName" class="company">Company Name</p>
-      </div>
-
-      <div id="managerInfo" class="manager-info hidden">
-        <h4>Hiring Manager Insights</h4>
-        <div class="manager-card">
-          <p id="managerName" class="manager-name">--</p>
-          <div class="manager-links">
-            <a id="githubLink" href="#" target="_blank" class="link-btn hidden">
-              <span>GitHub</span>
-            </a>
-            <a id="linkedinLink" href="#" target="_blank" class="link-btn hidden">
-              <span>LinkedIn</span>
-            </a>
+    <!-- Main Content Area -->
+    <main class="game-screen">
+      
+      <!-- QUEST TAB (Analyze Jobs) -->
+      <section id="quest" class="tab-content active">
+        <div class="panel quest-panel">
+          <div class="panel-header">
+            <span class="panel-icon">📜</span>
+            <span>CURRENT QUEST</span>
           </div>
-          <div id="techStack" class="tech-stack hidden">
-            <p class="label">Tech Interests:</p>
-            <div id="techTags" class="tags"></div>
+          
+          <div class="status-box" id="statusBox">
+            <div class="status-sprite" id="statusSprite">🗡️</div>
+            <p class="status-text" id="statusText">
+              SEEK A JOB POSTING TO BEGIN YOUR QUEST...
+            </p>
+          </div>
+
+          <div id="jobInfo" class="job-card hidden">
+            <div class="job-card-header">
+              <span class="quest-badge">★ QUEST FOUND ★</span>
+            </div>
+            <h3 id="jobTitle" class="job-title">Loading...</h3>
+            <p id="companyName" class="company-name">
+              <span class="pixel-icon">🏰</span>
+              <span>Company Name</span>
+            </p>
+            <div class="job-tags" id="jobTechTags"></div>
+          </div>
+
+          <div id="managerInfo" class="npc-card hidden">
+            <div class="npc-header">
+              <span class="npc-sprite">👤</span>
+              <div class="npc-details">
+                <span class="npc-label">QUEST GIVER</span>
+                <span id="managerName" class="npc-name">Unknown NPC</span>
+              </div>
+            </div>
+            <div class="npc-links">
+              <a id="githubLink" href="#" target="_blank" class="pixel-btn small hidden">
+                <span>🐙</span> GITHUB
+              </a>
+              <a id="linkedinLink" href="#" target="_blank" class="pixel-btn small hidden">
+                <span>💼</span> LINKEDIN
+              </a>
+            </div>
+            <div id="npcTechStack" class="npc-tech hidden">
+              <span class="tech-label">KNOWN SKILLS:</span>
+              <div id="npcTechTags" class="tech-tags"></div>
+            </div>
+          </div>
+
+          <button id="generateBtn" class="pixel-btn primary large" disabled>
+            <span class="btn-icon">⚡</span>
+            <span class="btn-text">GENERATE QUEST ITEMS</span>
+            <span class="btn-loader hidden"></span>
+          </button>
+
+          <div id="projectIdeas" class="loot-container hidden">
+            <div class="loot-header">
+              <span>🎁</span> QUEST REWARDS UNLOCKED <span>🎁</span>
+            </div>
+            <div id="ideasList" class="loot-list"></div>
+          </div>
+
+          <div id="errorMessage" class="error-box hidden">
+            <span class="error-icon">💀</span>
+            <span class="error-text">ERROR</span>
           </div>
         </div>
+      </section>
+
+      <!-- STATS TAB (RPG Character Sheet) -->
+      <section id="stats" class="tab-content">
+        <div class="panel stats-panel">
+          <div class="panel-header">
+            <span class="panel-icon">⚔️</span>
+            <span>CHARACTER STATS</span>
+          </div>
+
+          <div class="character-sheet">
+            <!-- Character Avatar -->
+            <div class="character-avatar">
+              <div class="avatar-frame">
+                <div class="avatar-sprite" id="avatarSprite">🧙</div>
+              </div>
+              <div class="character-class" id="characterClass">APPRENTICE DEV</div>
+              <div class="total-power">
+                <span class="power-label">POWER LEVEL</span>
+                <span class="power-value" id="powerLevel">0</span>
+              </div>
+            </div>
+
+            <!-- Skill Trees -->
+            <div class="skill-trees">
+              <!-- Data Structures -->
+              <div class="skill-row" data-skill="dataStructures">
+                <div class="skill-icon">🗃️</div>
+                <div class="skill-info">
+                  <span class="skill-name">DATA STRUCTURES</span>
+                  <div class="skill-bar-container">
+                    <div class="skill-bar" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="skill-controls">
+                  <button class="skill-btn minus">−</button>
+                  <span class="skill-level">0</span>
+                  <button class="skill-btn plus">+</button>
+                </div>
+              </div>
+
+              <!-- Algorithms -->
+              <div class="skill-row" data-skill="algorithms">
+                <div class="skill-icon">🧮</div>
+                <div class="skill-info">
+                  <span class="skill-name">ALGORITHMS</span>
+                  <div class="skill-bar-container">
+                    <div class="skill-bar" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="skill-controls">
+                  <button class="skill-btn minus">−</button>
+                  <span class="skill-level">0</span>
+                  <button class="skill-btn plus">+</button>
+                </div>
+              </div>
+
+              <!-- Systems / OS -->
+              <div class="skill-row" data-skill="systems">
+                <div class="skill-icon">🖥️</div>
+                <div class="skill-info">
+                  <span class="skill-name">SYSTEMS / OS</span>
+                  <div class="skill-bar-container">
+                    <div class="skill-bar" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="skill-controls">
+                  <button class="skill-btn minus">−</button>
+                  <span class="skill-level">0</span>
+                  <button class="skill-btn plus">+</button>
+                </div>
+              </div>
+
+              <!-- Databases -->
+              <div class="skill-row" data-skill="databases">
+                <div class="skill-icon">🗄️</div>
+                <div class="skill-info">
+                  <span class="skill-name">DATABASES</span>
+                  <div class="skill-bar-container">
+                    <div class="skill-bar" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="skill-controls">
+                  <button class="skill-btn minus">−</button>
+                  <span class="skill-level">0</span>
+                  <button class="skill-btn plus">+</button>
+                </div>
+              </div>
+
+              <!-- Networking -->
+              <div class="skill-row" data-skill="networking">
+                <div class="skill-icon">🌐</div>
+                <div class="skill-info">
+                  <span class="skill-name">NETWORKING</span>
+                  <div class="skill-bar-container">
+                    <div class="skill-bar" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="skill-controls">
+                  <button class="skill-btn minus">−</button>
+                  <span class="skill-level">0</span>
+                  <button class="skill-btn plus">+</button>
+                </div>
+              </div>
+
+              <!-- Frontend -->
+              <div class="skill-row" data-skill="frontend">
+                <div class="skill-icon">🎨</div>
+                <div class="skill-info">
+                  <span class="skill-name">FRONTEND</span>
+                  <div class="skill-bar-container">
+                    <div class="skill-bar" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="skill-controls">
+                  <button class="skill-btn minus">−</button>
+                  <span class="skill-level">0</span>
+                  <button class="skill-btn plus">+</button>
+                </div>
+              </div>
+
+              <!-- Backend -->
+              <div class="skill-row" data-skill="backend">
+                <div class="skill-icon">⚙️</div>
+                <div class="skill-info">
+                  <span class="skill-name">BACKEND</span>
+                  <div class="skill-bar-container">
+                    <div class="skill-bar" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="skill-controls">
+                  <button class="skill-btn minus">−</button>
+                  <span class="skill-level">0</span>
+                  <button class="skill-btn plus">+</button>
+                </div>
+              </div>
+
+              <!-- AI / ML -->
+              <div class="skill-row" data-skill="aiMl">
+                <div class="skill-icon">🤖</div>
+                <div class="skill-info">
+                  <span class="skill-name">AI / ML</span>
+                  <div class="skill-bar-container">
+                    <div class="skill-bar" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="skill-controls">
+                  <button class="skill-btn minus">−</button>
+                  <span class="skill-level">0</span>
+                  <button class="skill-btn plus">+</button>
+                </div>
+              </div>
+
+              <!-- Math / Probability -->
+              <div class="skill-row" data-skill="math">
+                <div class="skill-icon">📐</div>
+                <div class="skill-info">
+                  <span class="skill-name">MATH / PROBABILITY</span>
+                  <div class="skill-bar-container">
+                    <div class="skill-bar" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="skill-controls">
+                  <button class="skill-btn minus">−</button>
+                  <span class="skill-level">0</span>
+                  <button class="skill-btn plus">+</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stat Summary -->
+            <div class="stat-summary">
+              <div class="summary-item">
+                <span class="summary-icon">⭐</span>
+                <span class="summary-label">STRONGEST</span>
+                <span class="summary-value" id="strongestSkill">---</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-icon">📈</span>
+                <span class="summary-label">TOTAL XP</span>
+                <span class="summary-value" id="totalXp">0</span>
+              </div>
+            </div>
+
+            <button id="resetStatsBtn" class="pixel-btn danger small">
+              <span>🔄</span> RESET STATS
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- INVENTORY TAB (Saved Ideas) -->
+      <section id="inventory" class="tab-content">
+        <div class="panel inventory-panel">
+          <div class="panel-header">
+            <span class="panel-icon">🎒</span>
+            <span>INVENTORY</span>
+            <span class="item-count" id="inventoryCount">0 ITEMS</span>
+          </div>
+
+          <div id="savedIdeasList" class="inventory-grid">
+            <div class="empty-inventory">
+              <span class="empty-icon">📦</span>
+              <p>YOUR INVENTORY IS EMPTY!</p>
+              <p class="empty-hint">COMPLETE QUESTS TO COLLECT LOOT</p>
+            </div>
+          </div>
+
+          <button id="clearInventoryBtn" class="pixel-btn danger small hidden">
+            <span>🗑️</span> DROP ALL ITEMS
+          </button>
+        </div>
+      </section>
+
+      <!-- CONFIG TAB (Settings) -->
+      <section id="config" class="tab-content">
+        <div class="panel config-panel">
+          <div class="panel-header">
+            <span class="panel-icon">⚙️</span>
+            <span>CONFIGURATION</span>
+          </div>
+
+          <!-- Player Name -->
+          <div class="config-section">
+            <div class="config-label">
+              <span class="config-icon">👤</span>
+              <span>PLAYER NAME</span>
+            </div>
+            <input type="text" id="configPlayerName" class="pixel-input" placeholder="ENTER YOUR NAME" maxlength="16">
+          </div>
+
+          <!-- API Keys Section -->
+          <div class="config-section">
+            <div class="config-label">
+              <span class="config-icon">🔑</span>
+              <span>API KEYS</span>
+            </div>
+            <p class="config-hint">KEYS ARE STORED LOCALLY ONLY</p>
+
+            <div class="input-group">
+              <label>OPENAI KEY <span class="required">*REQ</span></label>
+              <div class="input-with-toggle">
+                <input type="password" id="openaiKey" class="pixel-input" placeholder="sk-...">
+                <button class="toggle-btn" data-target="openaiKey">👁</button>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>GITHUB TOKEN</label>
+              <div class="input-with-toggle">
+                <input type="password" id="githubToken" class="pixel-input" placeholder="ghp_...">
+                <button class="toggle-btn" data-target="githubToken">👁</button>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>SERPAPI KEY</label>
+              <div class="input-with-toggle">
+                <input type="password" id="serpApiKey" class="pixel-input" placeholder="YOUR KEY">
+                <button class="toggle-btn" data-target="serpApiKey">👁</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Game Options -->
+          <div class="config-section">
+            <div class="config-label">
+              <span class="config-icon">🎮</span>
+              <span>GAME OPTIONS</span>
+            </div>
+
+            <div class="checkbox-row">
+              <input type="checkbox" id="enableCache" checked>
+              <label for="enableCache">ENABLE CACHE (SAVES GOLD)</label>
+            </div>
+
+            <div class="checkbox-row">
+              <input type="checkbox" id="autoAnalyze">
+              <label for="autoAnalyze">AUTO-SCAN QUESTS</label>
+            </div>
+
+            <div class="checkbox-row">
+              <input type="checkbox" id="enableSounds" checked>
+              <label for="enableSounds">SOUND EFFECTS</label>
+            </div>
+
+            <div class="checkbox-row">
+              <input type="checkbox" id="enableCrt" checked>
+              <label for="enableCrt">CRT EFFECT</label>
+            </div>
+          </div>
+
+          <button id="saveConfigBtn" class="pixel-btn primary">
+            <span>💾</span> SAVE CONFIG
+          </button>
+
+          <div id="configStatus" class="config-status hidden"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer - High Score Style -->
+    <footer class="arcade-footer">
+      <div class="footer-text">
+        <span class="blink">●</span> 
+        PRESS START TO LEVEL UP YOUR CAREER 
+        <span class="blink">●</span>
       </div>
-
-      <button id="generateBtn" class="primary-btn" disabled>
-        <span class="btn-text">Generate Project Ideas</span>
-        <span class="btn-loader hidden"></span>
-      </button>
-
-      <div id="projectIdeas" class="ideas-container hidden">
-        <h4>Project Recommendations</h4>
-        <div id="ideasList"></div>
-      </div>
-
-      <div id="errorMessage" class="error-message hidden"></div>
-    </section>
-
-    <!-- Saved Ideas Tab -->
-    <section id="saved" class="tab-content">
-      <div id="savedIdeasList" class="saved-list">
-        <p class="empty-state">No saved ideas yet. Generate and save project ideas from job postings!</p>
-      </div>
-      <button id="clearSavedBtn" class="secondary-btn hidden">Clear All Saved</button>
-    </section>
-
-    <!-- Settings Tab -->
-    <section id="settings" class="tab-content">
-      <div class="settings-group">
-        <h4>API Keys (Bring Your Own Key)</h4>
-        <p class="settings-note">Your keys are stored locally and never shared.</p>
-
-        <div class="input-group">
-          <label for="openaiKey">OpenAI API Key</label>
-          <input type="password" id="openaiKey" placeholder="sk-...">
-          <button class="toggle-visibility" data-target="openaiKey">👁</button>
-        </div>
-
-        <div class="input-group">
-          <label for="githubToken">GitHub Token (optional)</label>
-          <input type="password" id="githubToken" placeholder="ghp_...">
-          <button class="toggle-visibility" data-target="githubToken">👁</button>
-        </div>
-
-        <div class="input-group">
-          <label for="serpApiKey">SerpAPI Key (optional)</label>
-          <input type="password" id="serpApiKey" placeholder="Your SerpAPI key">
-          <button class="toggle-visibility" data-target="serpApiKey">👁</button>
-        </div>
-      </div>
-
-      <div class="settings-group">
-        <h4>Preferences</h4>
-        
-        <div class="checkbox-group">
-          <input type="checkbox" id="enableCache" checked>
-          <label for="enableCache">Enable caching (reduces API calls)</label>
-        </div>
-
-        <div class="checkbox-group">
-          <input type="checkbox" id="autoAnalyze">
-          <label for="autoAnalyze">Auto-analyze when visiting job pages</label>
-        </div>
-
-        <div class="input-group">
-          <label for="cacheExpiry">Cache expiry (hours)</label>
-          <input type="number" id="cacheExpiry" value="24" min="1" max="168">
-        </div>
-      </div>
-
-      <button id="saveSettingsBtn" class="primary-btn">Save Settings</button>
-      <div id="settingsStatus" class="settings-status hidden"></div>
-    </section>
-
-    <footer class="footer">
-      <p>Built with ❤️ for job seekers</p>
+      <div class="credits">© 2024 REPOCOMPASS</div>
     </footer>
   </div>
 
