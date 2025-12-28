@@ -126,6 +126,17 @@ function initializeElements() {
   elements.projectIdeas = document.getElementById('projectIdeas');
   elements.ideasList = document.getElementById('ideasList');
   elements.errorMessage = document.getElementById('errorMessage');
+
+  // Defensive null checks for critical elements
+  if (!elements.projectIdeas) {
+    console.error('[RepoComPass] CRITICAL: #projectIdeas element not found in DOM');
+  }
+  if (!elements.ideasList) {
+    console.error('[RepoComPass] CRITICAL: #ideasList element not found in DOM');
+  }
+  if (!elements.errorMessage) {
+    console.error('[RepoComPass] CRITICAL: #errorMessage element not found in DOM');
+  }
   
   // Stats tab
   elements.avatarSprite = document.getElementById('avatarSprite');
@@ -505,16 +516,18 @@ elements.generateBtn?.addEventListener('click', async () => {
   btnLoader.classList.remove('hidden');
   elements.generateBtn.disabled = true;
   elements.errorMessage.classList.add('hidden');
-  
+
   playSound('generate');
-  
+
+  console.log('[RepoComPass] Generate Ideas: Starting generation process');
+
   try {
     const settings = await getSettings();
-    
+
     if (!settings.openaiKey) {
       throw new Error('OPENAI API KEY REQUIRED! CHECK CONFIG.');
     }
-    
+
     // Include player stats and company data in the generation request
     const response = await chrome.runtime.sendMessage({
       action: 'generateIdeas',
@@ -525,14 +538,45 @@ elements.generateBtn?.addEventListener('click', async () => {
         apiKey: settings.openaiKey
       }
     });
-    
+
+    console.log('[RepoComPass] Generate Ideas: Received response', {
+      success: response.success,
+      ideasCount: response.ideas?.length || 0,
+      webSearchUsed: response.webSearchUsed,
+      responseType: typeof response.ideas,
+      isArray: Array.isArray(response.ideas)
+    });
+
     if (response.success) {
+      // Validate response structure
+      if (!response.ideas) {
+        console.error('[RepoComPass] Generate Ideas: response.ideas is null/undefined');
+        throw new Error('SERVER ERROR: No ideas data in response');
+      }
+
+      if (!Array.isArray(response.ideas)) {
+        console.error('[RepoComPass] Generate Ideas: response.ideas is not an array', {
+          type: typeof response.ideas,
+          value: response.ideas
+        });
+        throw new Error('SERVER ERROR: Invalid ideas format (expected array)');
+      }
+
+      if (response.ideas.length === 0) {
+        console.warn('[RepoComPass] Generate Ideas: Empty ideas array returned');
+        throw new Error('NO IDEAS GENERATED. Try adjusting your stats or check API.');
+      }
+
       displayProjectIdeas(response.ideas);
       playSound('success');
     } else {
       throw new Error(response.error || 'GENERATION FAILED');
     }
   } catch (error) {
+    console.error('[RepoComPass] Generate Ideas: Error occurred', {
+      message: error.message,
+      error: error
+    });
     showError(error.message);
     playSound('error');
   } finally {
@@ -543,44 +587,140 @@ elements.generateBtn?.addEventListener('click', async () => {
 });
 
 function displayProjectIdeas(ideas) {
-  elements.projectIdeas.classList.remove('hidden');
-  
-  const rarities = ['🟢', '🔵', '🟣', '🟡'];
-  
-  elements.ideasList.innerHTML = ideas.map((idea, index) => `
-    <div class="loot-item">
-      <div class="loot-item-header">
-        <span class="loot-rarity">${rarities[index % rarities.length]}</span>
-        <span class="loot-name">${idea.title}</span>
-      </div>
-      <p class="loot-description">${idea.description}</p>
-      <div class="loot-tags">
-        ${idea.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
-      </div>
-      <div class="loot-actions">
-        <button class="pixel-btn small save-idea-btn" data-index="${index}">
-          <span>📥</span> COLLECT
-        </button>
-      </div>
-    </div>
-  `).join('');
-  
-  // Add save handlers
-  elements.ideasList.querySelectorAll('.save-idea-btn').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      const button = e.currentTarget;
-      const index = parseInt(button.dataset.index);
-      await saveIdea(ideas[index]);
-      button.innerHTML = '<span>✓</span> COLLECTED';
-      button.disabled = true;
-      playSound('collect');
-    });
+  console.log('[RepoComPass] Display Ideas: Called with', {
+    ideasCount: ideas?.length || 0,
+    firstIdea: ideas?.[0]?.title || 'N/A'
   });
+
+  // Defensive null checks
+  if (!elements.projectIdeas) {
+    console.error('[RepoComPass] Display Ideas: elements.projectIdeas is null');
+    showError('UI ERROR: Project ideas container not found');
+    return;
+  }
+
+  if (!elements.ideasList) {
+    console.error('[RepoComPass] Display Ideas: elements.ideasList is null');
+    showError('UI ERROR: Ideas list element not found');
+    return;
+  }
+
+  // Validate input
+  if (!Array.isArray(ideas)) {
+    console.error('[RepoComPass] Display Ideas: ideas is not an array', {
+      type: typeof ideas,
+      value: ideas
+    });
+    showError('DISPLAY ERROR: Invalid ideas format');
+    return;
+  }
+
+  if (ideas.length === 0) {
+    console.warn('[RepoComPass] Display Ideas: Empty ideas array - showing empty state');
+    displayEmptyIdeasState();
+    return;
+  }
+
+  // Show container
+  elements.projectIdeas.classList.remove('hidden');
+
+  const rarities = ['🟢', '🔵', '🟣', '🟡'];
+
+  try {
+    elements.ideasList.innerHTML = ideas.map((idea, index) => {
+      // Validate each idea object
+      if (!idea || typeof idea !== 'object') {
+        console.warn('[RepoComPass] Display Ideas: Invalid idea object at index', index, idea);
+        return '';
+      }
+
+      const title = idea.title || 'Untitled Project';
+      const description = idea.description || 'No description provided';
+      const technologies = Array.isArray(idea.technologies) ? idea.technologies : [];
+
+      return `
+        <div class="loot-item">
+          <div class="loot-item-header">
+            <span class="loot-rarity">${rarities[index % rarities.length]}</span>
+            <span class="loot-name">${title}</span>
+          </div>
+          <p class="loot-description">${description}</p>
+          <div class="loot-tags">
+            ${technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+          </div>
+          <div class="loot-actions">
+            <button class="pixel-btn small save-idea-btn" data-index="${index}">
+              <span>📥</span> COLLECT
+            </button>
+          </div>
+        </div>
+      `;
+    }).filter(html => html !== '').join('');
+
+    console.log('[RepoComPass] Display Ideas: Successfully rendered', ideas.length, 'ideas');
+
+    // Add save handlers
+    elements.ideasList.querySelectorAll('.save-idea-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const button = e.currentTarget;
+        const index = parseInt(button.dataset.index);
+        console.log('[RepoComPass] Saving idea at index', index);
+        await saveIdea(ideas[index]);
+        button.innerHTML = '<span>✓</span> COLLECTED';
+        button.disabled = true;
+        playSound('collect');
+      });
+    });
+  } catch (error) {
+    console.error('[RepoComPass] Display Ideas: Error rendering HTML', error);
+    showError('DISPLAY ERROR: Failed to render ideas');
+  }
+}
+
+function displayEmptyIdeasState() {
+  console.log('[RepoComPass] Displaying empty ideas state');
+
+  // Show container
+  elements.projectIdeas.classList.remove('hidden');
+
+  // Display empty state message
+  elements.ideasList.innerHTML = `
+    <div class="empty-loot">
+      <span class="empty-icon">🎲</span>
+      <p class="empty-message">NO IDEAS GENERATED</p>
+      <p class="empty-hint">The AI couldn't generate ideas. Try:</p>
+      <ul class="empty-suggestions">
+        <li>Check your API key is valid</li>
+        <li>Ensure job data was loaded correctly</li>
+        <li>Try adjusting your skill levels</li>
+        <li>Check console for errors (F12)</li>
+      </ul>
+    </div>
+  `;
 }
 
 function showError(message) {
+  console.log('[RepoComPass] Showing error:', message);
+
+  if (!elements.errorMessage) {
+    console.error('[RepoComPass] Error: elements.errorMessage is null');
+    alert('ERROR: ' + message); // Fallback
+    return;
+  }
+
   elements.errorMessage.classList.remove('hidden');
-  elements.errorMessage.querySelector('.error-text').textContent = message;
+  const errorTextElement = elements.errorMessage.querySelector('.error-text');
+
+  if (errorTextElement) {
+    errorTextElement.textContent = message;
+  } else {
+    console.error('[RepoComPass] Error: .error-text element not found');
+  }
+
+  // Auto-hide after 8 seconds
+  setTimeout(() => {
+    elements.errorMessage.classList.add('hidden');
+  }, 8000);
 }
 
 // ==========================================

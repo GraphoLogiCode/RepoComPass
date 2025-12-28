@@ -261,15 +261,25 @@ async function generateIdeas(data) {
     }
 
     const result = await response.json();
-    
+
+    console.log('[RepoComPass] Generate Ideas: Raw API response received', {
+      hasOutput: !!result.output,
+      hasChoices: !!result.choices,
+      outputType: typeof result.output,
+      choicesType: typeof result.choices
+    });
+
     // Responses API output structure: output[].content[] where each content item has type and text
     let textContent = null;
     if (result.output && Array.isArray(result.output)) {
+      console.log('[RepoComPass] Parsing Responses API format, output length:', result.output.length);
+
       for (const outputItem of result.output) {
         if (outputItem.type === 'message' && outputItem.content) {
           for (const contentItem of outputItem.content) {
             if (contentItem.type === 'output_text' || contentItem.type === 'text') {
               textContent = contentItem.text;
+              console.log('[RepoComPass] Found text content, length:', textContent?.length || 0);
               break;
             }
           }
@@ -277,33 +287,96 @@ async function generateIdeas(data) {
         if (textContent) break;
       }
     }
-    
+
     // Fallback for Chat Completions API format
     if (!textContent && result.choices?.[0]?.message?.content) {
+      console.log('[RepoComPass] Using Chat Completions API fallback');
       textContent = result.choices[0].message.content;
     }
-    
+
     if (!textContent) {
-      console.error('Unexpected API response structure:', JSON.stringify(result, null, 2));
-      throw new Error('Could not parse API response');
+      console.error('[RepoComPass] API response parsing failed - no text content found', {
+        fullResponse: JSON.stringify(result, null, 2)
+      });
+      throw new Error('Could not parse API response - unexpected format');
     }
-    
-    const content = JSON.parse(textContent);
+
+    console.log('[RepoComPass] Successfully extracted text content, parsing JSON...');
+
+    let content;
+    try {
+      content = JSON.parse(textContent);
+      console.log('[RepoComPass] JSON parsed successfully', {
+        hasProjects: !!content.projects,
+        hasIdeas: !!content.ideas,
+        projectsType: typeof content.projects,
+        ideasType: typeof content.ideas
+      });
+    } catch (parseError) {
+      console.error('[RepoComPass] JSON parsing failed', {
+        error: parseError.message,
+        textContent: textContent.substring(0, 500)
+      });
+      throw new Error('API returned invalid JSON: ' + parseError.message);
+    }
+
+    // Extract and validate ideas array
+    const ideas = content.projects || content.ideas || [];
+
+    if (!Array.isArray(ideas)) {
+      console.error('[RepoComPass] Ideas is not an array', {
+        ideasType: typeof ideas,
+        ideasValue: ideas
+      });
+      throw new Error('API response has invalid ideas format (expected array)');
+    }
+
+    console.log('[RepoComPass] Extracted ideas array, length:', ideas.length);
+
+    // Validate each idea has minimum required fields
+    const validIdeas = ideas.filter((idea, index) => {
+      const isValid = idea && typeof idea === 'object' &&
+                      (idea.title || idea.name) &&
+                      (idea.description || idea.desc);
+
+      if (!isValid) {
+        console.warn('[RepoComPass] Invalid idea at index', index, idea);
+      }
+
+      return isValid;
+    });
+
+    if (validIdeas.length < ideas.length) {
+      console.warn('[RepoComPass] Filtered out invalid ideas', {
+        original: ideas.length,
+        valid: validIdeas.length
+      });
+    }
 
     // Log if web search was used
     const webSearchUsed = result.usage?.web_search_requests > 0;
     if (webSearchUsed) {
-      console.log('Web search was used for idea generation');
+      console.log('[RepoComPass] Web search was used for idea generation');
     }
 
     return {
       success: true,
-      ideas: content.projects || content.ideas || [],
+      ideas: validIdeas,
       webSearchUsed
     };
   } catch (error) {
-    console.error('OpenAI error:', error);
-    throw error;
+    console.error('[RepoComPass] Generate Ideas: Error occurred', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+
+    // Return structured error instead of throwing
+    return {
+      success: false,
+      error: error.message || 'Unknown error occurred',
+      ideas: []
+    };
   }
 }
 
