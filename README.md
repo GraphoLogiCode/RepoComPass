@@ -176,9 +176,8 @@ RepoComPass tracks 9 technical skill categories:
 
 | API | Free Tier | Typical Cost |
 |-----|-----------|--------------|
-| **OpenAI GPT-4o-mini** | $5 free credit | ~$0.01-0.03 per job |
-| **GitHub API** | 60/hr (unauth), 5000/hr (auth) | Free with token |
-| **Google Custom Search** | 100 queries/day | $5 per 1000 queries |
+| **OpenAI GPT-5-mini** | $5 free credit | cheap |
+
 
 ### Cost Optimization Tips
 - ✅ **Enable caching** (on by default) - saves 70%+ on repeat searches

@@ -496,7 +496,7 @@ function updateStatus(type, icon, message) {
 function displayJobInfo(jobData) {
   elements.jobInfo.classList.remove('hidden');
   elements.jobTitle.textContent = jobData.title || 'UNKNOWN QUEST';
-  elements.companyName.querySelector('span:last-child').textContent = jobData.company || 'MYSTERIOUS GUILD';
+  elements.companyName.querySelector('span:last-child').textContent = jobData.company || 'MYSTERIOUS COMPANY';
   
   // Display tech tags
   if (jobData.technologies && jobData.technologies.length > 0) {

@@ -160,6 +160,12 @@ function extractTextFromResponseOutput(result) {
           if (contentItem.type === 'output_text' || contentItem.type === 'text') {
             textContent = contentItem.text;
             console.log('[RepoComPass] Found text content, length:', textContent?.length);
+
+            // Validate text is not empty
+            if (!textContent || textContent.trim() === '') {
+              console.warn('[RepoComPass] Text content is empty string');
+              textContent = null;  // Treat empty as null to trigger fallback
+            }
             break;
           }
         }
@@ -268,7 +274,13 @@ async function callResponsesAPIWithContinuation(requestBody, apiKey, maxIteratio
     } else if (result.status === 'incomplete') {
       const reason = result.incomplete_details?.reason;
       console.warn(`[RepoComPass] Response incomplete: ${reason}`);
-      
+
+      // Handle content_filter explicitly - this is a hard failure
+      if (reason === 'content_filter') {
+        console.error('[RepoComPass] Content filtered by safety system');
+        throw new Error('Request blocked by content policy. Please rephrase your job description or try a different company.');
+      }
+
       if (reason === 'max_output_tokens' && iterations < maxIterations) {
         // Continue from where we left off
         previousResponseId = result.id;
@@ -403,19 +415,17 @@ Be concise. Only include confident information.`;
   try {
     const requestBody = {
       model: API_CONFIG.openai.modelPrimary,
-      instructions: 'You are a company research assistant. Use web search for current information. Return only the requested JSON structure with factual data.',
+      reasoning: { effort: 'low' },  // Limit reasoning tokens to prevent incomplete outputs
+      instructions: 'You are a company research assistant. Use web search for current information. Return valid JSON matching the company research schema with factual data.',
       input: [{ role: 'user', content: prompt }],
       tools: [{ type: 'web_search' }],
+      tool_choice: 'auto',  // Let model decide when to use web search
       include: ['web_search_call.action.sources'],
       text: {
-        format: {
-          type: 'json_schema',
-          name: COMPANY_RESEARCH_SCHEMA.name,
-          strict: COMPANY_RESEARCH_SCHEMA.strict,
-          schema: COMPANY_RESEARCH_SCHEMA.schema
-        }
+        format: { type: 'text' },  // Use text format instead of strict JSON to allow citations
+        verbosity: 'low'  // Reduce output length to save tokens
       },
-      max_output_tokens: 8000
+      max_output_tokens: 10000  // Increased buffer for reasoning + output
     };
 
     console.log('[RepoComPass] enrichCompanyWithAI - Starting request for:', company);
@@ -470,13 +480,21 @@ Be concise. Only include confident information.`;
       console.log('[RepoComPass] Attached', allSources.length, 'web search sources');
     }
 
-    // Log usage stats
+    // Log usage stats with cost estimate
     if (result.usage) {
-      console.log('[RepoComPass] Token usage:', {
-        input: result.usage.input_tokens,
-        output: result.usage.output_tokens,
-        reasoning: result.usage.reasoning_tokens,
-        webSearchRequests: result.usage.web_search_requests
+      const inputTokens = result.usage.input_tokens || 0;
+      const outputTokens = result.usage.output_tokens || 0;
+      const reasoningTokens = result.usage.reasoning_tokens || 0;
+
+      // GPT-5-mini pricing: $0.20/1M input, $0.80/1M output
+      const estimatedCost = (inputTokens * 0.20 + outputTokens * 0.80) / 1_000_000;
+
+      console.log('[RepoComPass] Token usage (Company Analysis):', {
+        input: inputTokens,
+        output: outputTokens,
+        reasoning: reasoningTokens,
+        webSearchRequests: result.usage.web_search_requests,
+        estimatedCost: `$${estimatedCost.toFixed(4)}`
       });
     }
 
@@ -514,25 +532,23 @@ async function generateIdeas(data) {
   try {
     const requestBody = {
       model: API_CONFIG.openai.modelPrimary,
+      reasoning: { effort: 'low' },  // Limit reasoning tokens to prevent incomplete outputs
       instructions: `You are a career advisor. Generate 3 impressive portfolio project ideas that:
 1. Directly relate to the job requirements
 2. Use the company's tech stack
 3. Are achievable in 1-2 weeks
 4. Stand out from typical projects
 
-Use web search for current company information if needed.`,
+Use web search for current company information if needed. Return valid JSON matching the project ideas schema.`,
       input: [{ role: 'user', content: prompt }],
       tools: [{ type: 'web_search' }],
+      tool_choice: 'auto',  // Let model decide when to use web search
       include: ['web_search_call.action.sources'],
       text: {
-        format: {
-          type: 'json_schema',
-          name: PROJECT_IDEAS_SCHEMA.name,
-          strict: PROJECT_IDEAS_SCHEMA.strict,
-          schema: PROJECT_IDEAS_SCHEMA.schema
-        }
+        format: { type: 'text' },  // Use text format instead of strict JSON to allow citations
+        verbosity: 'low'  // Reduce output length to save tokens
       },
-      max_output_tokens: 8000
+      max_output_tokens: 10000  // Increased buffer for reasoning + output
     };
 
     console.log('[RepoComPass] generateIdeas - Sending request to OpenAI...');
@@ -592,13 +608,21 @@ Use web search for current company information if needed.`,
       return isValid;
     });
 
-    // Log usage
+    // Log usage with cost estimate
     if (result.usage) {
-      console.log('[RepoComPass] Token usage:', {
-        input: result.usage.input_tokens,
-        output: result.usage.output_tokens,
-        reasoning: result.usage.reasoning_tokens,
-        webSearchRequests: result.usage.web_search_requests
+      const inputTokens = result.usage.input_tokens || 0;
+      const outputTokens = result.usage.output_tokens || 0;
+      const reasoningTokens = result.usage.reasoning_tokens || 0;
+
+      // GPT-5-mini pricing: $0.20/1M input, $0.80/1M output
+      const estimatedCost = (inputTokens * 0.20 + outputTokens * 0.80) / 1_000_000;
+
+      console.log('[RepoComPass] Token usage (Project Ideas):', {
+        input: inputTokens,
+        output: outputTokens,
+        reasoning: reasoningTokens,
+        webSearchRequests: result.usage.web_search_requests,
+        estimatedCost: `$${estimatedCost.toFixed(4)}`
       });
     }
 
@@ -721,6 +745,16 @@ ${jobData?.experienceRequired ? `${jobData.experienceRequired}+ years` : 'Not sp
 5. Show understanding of the company's products/services
 6. Stand out from generic portfolio projects
 7. Demonstrate relevance to the company's recent projects or direction`;
+
+  // Ensure total prompt doesn't exceed ~4000 tokens (~16k chars)
+  const MAX_PROMPT_CHARS = 16000;
+  if (prompt.length > MAX_PROMPT_CHARS) {
+    console.warn('[RepoComPass] Prompt too long, truncating:', {
+      original: prompt.length,
+      truncated: MAX_PROMPT_CHARS
+    });
+    prompt = prompt.substring(0, MAX_PROMPT_CHARS) + '\n\n[Content truncated for length...]';
+  }
 
   return prompt;
 }
