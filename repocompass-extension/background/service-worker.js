@@ -144,7 +144,6 @@ Return ONLY a valid JSON object with this structure:
       },
       body: JSON.stringify({
         model: API_CONFIG.openai.modelPrimary,
-        modalities: ['text'],
         instructions: 'You are a company research assistant that provides accurate, factual information about companies and their technology practices. Use web search to find current information. Always respond with valid JSON.',
         input: [
           {
@@ -231,7 +230,6 @@ async function generateIdeas(data) {
       },
       body: JSON.stringify({
         model: API_CONFIG.openai.modelPrimary,
-        modalities: ['text'],
         instructions: `You are a career advisor helping job seekers stand out by suggesting impressive portfolio projects.
             Generate creative, practical project ideas that:
             1. Directly relate to the job requirements and company's tech stack

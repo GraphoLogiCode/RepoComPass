@@ -435,18 +435,27 @@ async function analyzeCompany(jobData) {
       displayCompanyInfo(currentCompanyData);
     }
 
-    elements.generateBtn.disabled = false;
+    if (elements.generateBtn) {
+      elements.generateBtn.disabled = false;
+    }
     updateStatus('ready', '✨', 'READY TO GENERATE QUEST ITEMS!');
 
   } catch (error) {
     console.error('Company analysis error:', error);
-    elements.generateBtn.disabled = false;
+    if (elements.generateBtn) {
+      elements.generateBtn.disabled = false;
+    }
     updateStatus('ready', '⚡', 'COMPANY ANALYSIS INCOMPLETE - GENERATE ANYWAY');
   }
 }
 
 function displayCompanyInfo(companyData) {
   if (!companyData) return;
+
+  if (!elements.companyInfo) {
+    console.error('[RepoComPass] displayCompanyInfo: elements.companyInfo is null');
+    return;
+  }
 
   elements.companyInfo.classList.remove('hidden');
 
