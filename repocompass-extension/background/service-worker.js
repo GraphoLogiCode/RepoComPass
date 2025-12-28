@@ -34,9 +34,13 @@ async function handleMessage(request, sender) {
       return { success: true };
 
     case 'openPopup':
-      // Can't programmatically open popup, but can badge
-      chrome.action.setBadgeText({ text: '!' });
-      chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
+      // Open the extension popup
+      chrome.action.openPopup().catch(err => {
+        console.error('Failed to open popup:', err);
+        // Fallback: show badge to guide user
+        chrome.action.setBadgeText({ text: '!' });
+        chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
+      });
       return { success: true };
 
     default:
