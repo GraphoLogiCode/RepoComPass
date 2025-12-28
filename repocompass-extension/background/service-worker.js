@@ -4,10 +4,40 @@
 const API_CONFIG = {
   openai: {
     baseUrl: 'https://api.openai.com/v1',
-    // Use gpt-4o-mini with Responses API - supports web_search tool
-    modelPrimary: 'gpt-4o-mini'
+    // Use gpt-5-mini with Responses API - supports web_search tool
+    modelPrimary: 'gpt-5-mini'
   }
 };
+
+// Helper function to extract JSON from text that might be wrapped in markdown code blocks
+function extractJSON(text) {
+  if (!text) return null;
+  
+  // Try to parse as-is first
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    // Not valid JSON, try to extract from markdown
+  }
+  
+  // Remove markdown code blocks like ```json ... ``` or ``` ... ```
+  let cleaned = text.trim();
+  
+  // Match ```json ... ``` or ```JSON ... ``` or ``` ... ```
+  const codeBlockMatch = cleaned.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (codeBlockMatch) {
+    cleaned = codeBlockMatch[1].trim();
+  }
+  
+  // Try parsing the cleaned text
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    console.error('[RepoComPass] Failed to parse JSON:', e.message);
+    console.error('[RepoComPass] Raw text:', text.substring(0, 500));
+    throw new Error('Failed to parse JSON response from AI');
+  }
+}
 
 // Message handler
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -212,7 +242,8 @@ Return ONLY a valid JSON object with this structure:
       throw new Error('Could not parse API response - no text content found');
     }
     
-    const companyData = JSON.parse(textContent);
+    // Use helper to extract JSON (handles markdown code blocks)
+    const companyData = extractJSON(textContent);
 
     // Log if tools were used
     if (result.usage?.web_search_requests > 0) {
@@ -353,7 +384,8 @@ IMPORTANT: You must respond with ONLY a valid JSON object, no other text before 
 
     let content;
     try {
-      content = JSON.parse(textContent);
+      // Use helper to extract JSON (handles markdown code blocks)
+      content = extractJSON(textContent);
       console.log('[RepoComPass] JSON parsed successfully', {
         hasProjects: !!content.projects,
         hasIdeas: !!content.ideas,
