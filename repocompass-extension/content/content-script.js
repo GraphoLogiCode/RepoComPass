@@ -22,28 +22,28 @@ let cachedSite = null;
 
 const SELECTORS = {
   linkedin: {
-    title: '.job-details-jobs-unified-top-card__job-title, .t-24.t-bold',
-    company: '.job-details-jobs-unified-top-card__company-name, .job-details-jobs-unified-top-card__primary-description-container a',
-    description: '.jobs-description__content, .jobs-box__html-content',
-    location: '.job-details-jobs-unified-top-card__primary-description-container .tvm__text',
-    requirements: '.jobs-description__content li',
-    container: '.jobs-search__job-details, .job-view-layout'
+    title: '.job-details-jobs-unified-top-card__job-title, .t-24.t-bold, .jobs-unified-top-card__job-title, h1.topcard__title, .job-title, h1[class*="job-title"], h1[class*="JobTitle"], .jobs-details__main-content h1, .jobs-top-card__job-title',
+    company: '.job-details-jobs-unified-top-card__company-name, .job-details-jobs-unified-top-card__primary-description-container a, .jobs-unified-top-card__company-name, a.topcard__org-name-link, .company-name, a[class*="company"], .jobs-details__main-content a[href*="/company/"], .jobs-top-card__company-url',
+    description: '.jobs-description__content, .jobs-box__html-content, .jobs-description, #job-details, .description__text, [class*="job-description"], [class*="JobDescription"]',
+    location: '.job-details-jobs-unified-top-card__primary-description-container .tvm__text, .jobs-unified-top-card__bullet, .topcard__flavor--bullet, [class*="location"], .jobs-top-card__bullet',
+    requirements: '.jobs-description__content li, .jobs-box__html-content li, .description__text li',
+    container: '.jobs-search__job-details, .job-view-layout, .jobs-details, #job-details'
   },
   indeed: {
-    title: '.jobsearch-JobInfoHeader-title, [data-testid="jobsearch-JobInfoHeader-title"]',
-    company: '.jobsearch-InlineCompanyRating-companyHeader, [data-testid="inlineHeader-companyName"]',
-    description: '#jobDescriptionText',
-    location: '.jobsearch-JobInfoHeader-subtitle .companyLocation, [data-testid="job-location"]',
-    requirements: '#jobDescriptionText li',
-    container: '#jobDescriptionText, .jobsearch-ViewJobLayout'
+    title: '.jobsearch-JobInfoHeader-title, [data-testid="jobsearch-JobInfoHeader-title"], h1.jobTitle, [class*="JobTitle"], h1[class*="title"]',
+    company: '.jobsearch-InlineCompanyRating-companyHeader, [data-testid="inlineHeader-companyName"], [data-testid="company-name"], .companyName, [class*="CompanyName"]',
+    description: '#jobDescriptionText, [id*="jobDescription"], .jobsearch-jobDescriptionText, [class*="jobDescription"]',
+    location: '.jobsearch-JobInfoHeader-subtitle .companyLocation, [data-testid="job-location"], [data-testid="jobsearch-JobInfoHeader-companyLocation"], .companyLocation',
+    requirements: '#jobDescriptionText li, .jobsearch-jobDescriptionText li',
+    container: '#jobDescriptionText, .jobsearch-ViewJobLayout, #viewJobSSRRoot'
   },
   glassdoor: {
-    title: '[data-test="jobTitle"], .JobDetails_jobTitle__Rw_gn',
-    company: '[data-test="employer-name"], .JobDetails_companyName__bMEu8',
-    description: '[data-test="description"], .JobDetails_jobDescription__uW_fK',
-    location: '[data-test="location"], .JobDetails_location__mSg5h',
-    requirements: '[data-test="description"] li',
-    container: '[data-test="description"], .JobDetails'
+    title: '[data-test="jobTitle"], .JobDetails_jobTitle__Rw_gn, h1[class*="JobTitle"], .job-title, [class*="jobTitle"]',
+    company: '[data-test="employer-name"], .JobDetails_companyName__bMEu8, [class*="EmployerName"], [class*="companyName"], .employer-name',
+    description: '[data-test="description"], .JobDetails_jobDescription__uW_fK, [class*="JobDescription"], .job-description, [class*="jobDescription"]',
+    location: '[data-test="location"], .JobDetails_location__mSg5h, [class*="Location"], .location',
+    requirements: '[data-test="description"] li, .JobDetails_jobDescription__uW_fK li',
+    container: '[data-test="description"], .JobDetails, [class*="JobDetails"]'
   }
 };
 
@@ -213,21 +213,62 @@ function extractJobData(options = {}) {
   if (!selectors) return { success: false, error: 'No selectors defined for site' };
   
   // Batch DOM reads
-  const title = getText(selectors.title);
-  const company = getText(selectors.company);
+  let title = getText(selectors.title);
+  let company = getText(selectors.company);
+  
+  // Debug logging to help diagnose selector issues
+  console.log('[RepoComPass] Extraction attempt on', site, ':', {
+    titleFound: !!title,
+    companyFound: !!company,
+    url: window.location.href
+  });
   
   // Early exit if content not loaded
   if (!title && !company) {
-    return {
-      success: false,
-      error: 'Job content not loaded yet',
-      partial: { site, url: window.location.href }
-    };
+    // Try to find any heading that might be a job title
+    const h1Elements = Array.from(document.querySelectorAll('h1'));
+    console.log('[RepoComPass] Primary selectors failed. Available h1 elements:', 
+      h1Elements.map(h => h.textContent?.trim().substring(0, 50)));
+    
+    // Look for the first reasonable h1 as fallback
+    for (const h1 of h1Elements) {
+      const text = h1.textContent?.trim();
+      if (text && text.length > 3 && text.length < 200) {
+        title = text;
+        console.log('[RepoComPass] Using fallback h1 as title:', title);
+        break;
+      }
+    }
+    
+    if (!title) {
+      return {
+        success: false,
+        error: 'Job content not loaded yet',
+        partial: { site, url: window.location.href }
+      };
+    }
   }
   
   const location = getText(selectors.location);
   const description = getDescription(selectors.description);
   const requirements = getAllText(selectors.requirements);
+  
+  // Try fallback for description if empty
+  let descText = description.text;
+  let descHtml = description.html;
+  if (!descText) {
+    // Try common description containers
+    const descFallbacks = ['article', 'main', '.content', '#content', '[role="main"]'];
+    for (const sel of descFallbacks) {
+      const el = document.querySelector(sel);
+      if (el?.textContent?.length > 200) {
+        descText = el.textContent.trim();
+        descHtml = el.innerHTML;
+        console.log('[RepoComPass] Using fallback description from:', sel);
+        break;
+      }
+    }
+  }
   
   const jobData = {
     site,
@@ -235,26 +276,27 @@ function extractJobData(options = {}) {
     title,
     company,
     location,
-    description: description.text,
-    descriptionHtml: description.html,
+    description: descText,
+    descriptionHtml: descHtml,
     requirements,
     extractedAt: new Date().toISOString()
   };
   
   // Heavy extraction (skip in lightMode for faster initial response)
   if (!lightMode) {
-    const combinedText = [description.text, requirements.join(' ')].filter(Boolean).join(' ');
+    const combinedText = [descText, requirements.join(' ')].filter(Boolean).join(' ');
     jobData.technologies = extractTechnologies(combinedText);
-    jobData.experienceRequired = extractExperience(description.text);
+    jobData.experienceRequired = extractExperience(descText);
   } else {
     jobData.technologies = [];
     jobData.experienceRequired = null;
   }
   
-  if (!jobData.title || !jobData.company) {
+  // Allow if we at least have a title (company can be extracted from context)
+  if (!jobData.title) {
     return {
       success: false,
-      error: 'Missing required job fields (title or company)',
+      error: 'Missing job title',
       partial: jobData
     };
   }
