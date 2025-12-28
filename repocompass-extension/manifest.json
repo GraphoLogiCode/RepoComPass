@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "RepoComPass",
   "version": "1.0.0",
-  "description": "Get personalized project recommendations based on job postings and hiring manager insights",
+  "description": "Get personalized project recommendations based on job postings and company research",
   "permissions": [
     "storage",
     "activeTab",

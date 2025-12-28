@@ -25,7 +25,6 @@ const SELECTORS = {
     title: '.job-details-jobs-unified-top-card__job-title, .t-24.t-bold',
     company: '.job-details-jobs-unified-top-card__company-name, .job-details-jobs-unified-top-card__primary-description-container a',
     description: '.jobs-description__content, .jobs-box__html-content',
-    hiringManager: '.jobs-poster__name, .hirer-card__hirer-information .app-aware-link',
     location: '.job-details-jobs-unified-top-card__primary-description-container .tvm__text',
     requirements: '.jobs-description__content li',
     container: '.jobs-search__job-details, .job-view-layout'
@@ -171,23 +170,6 @@ function extractExperience(text) {
   return maxYears > 0 ? maxYears : null;
 }
 
-function extractHiringManager(site, selectors) {
-  if (!site || !selectors) return null;
-  
-  if (site === 'linkedin') {
-    const posterName = document.querySelector('.jobs-poster__name');
-    if (posterName?.textContent) return posterName.textContent.trim();
-    
-    const hirerCard = document.querySelector('.hirer-card__hirer-information .app-aware-link');
-    if (hirerCard?.textContent) return hirerCard.textContent.trim();
-    
-    const recruiterLink = document.querySelector('.jobs-unified-top-card__primary-description a[href*="/in/"]');
-    if (recruiterLink?.textContent) return recruiterLink.textContent.trim();
-  }
-  
-  return getText(selectors.hiringManager);
-}
-
 // =============================================================================
 // CACHE MANAGEMENT
 // =============================================================================
@@ -246,7 +228,6 @@ function extractJobData(options = {}) {
   const location = getText(selectors.location);
   const description = getDescription(selectors.description);
   const requirements = getAllText(selectors.requirements);
-  const hiringManager = extractHiringManager(site, selectors);
   
   const jobData = {
     site,
@@ -256,7 +237,6 @@ function extractJobData(options = {}) {
     location,
     description: description.text,
     descriptionHtml: description.html,
-    hiringManager,
     requirements,
     extractedAt: new Date().toISOString()
   };
