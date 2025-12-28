@@ -12,9 +12,7 @@
     "https://www.linkedin.com/jobs/*",
     "https://www.indeed.com/*",
     "https://www.glassdoor.com/*",
-    "https://api.github.com/*",
-    "https://api.openai.com/*",
-    "https://serpapi.com/*"
+    "https://api.openai.com/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",

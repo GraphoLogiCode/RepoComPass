@@ -46,16 +46,16 @@
     <!-- Tab Navigation - Arcade Buttons -->
     <nav class="arcade-tabs">
       <button class="arcade-tab active" data-tab="quest">
-        <span class="tab-icon">⚔️</span>
-        <span class="tab-text">QUEST</span>
+        <span class="tab-icon">🔍</span>
+        <span class="tab-text">ANALYZE</span>
       </button>
       <button class="arcade-tab" data-tab="stats">
         <span class="tab-icon">📊</span>
         <span class="tab-text">STATS</span>
       </button>
       <button class="arcade-tab" data-tab="inventory">
-        <span class="tab-icon">🎒</span>
-        <span class="tab-text">INVENTORY</span>
+        <span class="tab-icon">💡</span>
+        <span class="tab-text">IDEAS</span>
       </button>
       <button class="arcade-tab" data-tab="config">
         <span class="tab-icon">⚙️</span>
@@ -66,64 +66,64 @@
     <!-- Main Content Area -->
     <main class="game-screen">
       
-      <!-- QUEST TAB (Analyze Jobs) -->
+      <!-- ANALYSIS TAB (Analyze Jobs & Company) -->
       <section id="quest" class="tab-content active">
         <div class="panel quest-panel">
           <div class="panel-header">
             <span class="panel-icon">📜</span>
-            <span>CURRENT QUEST</span>
+            <span>JOB ANALYSIS</span>
           </div>
           
           <div class="status-box" id="statusBox">
             <div class="status-sprite" id="statusSprite">🗡️</div>
             <p class="status-text" id="statusText">
-              SEEK A JOB POSTING TO BEGIN YOUR QUEST...
+              NAVIGATE TO A JOB POSTING TO START COMPANY RESEARCH...
             </p>
           </div>
 
           <div id="jobInfo" class="job-card hidden">
             <div class="job-card-header">
-              <span class="quest-badge">★ QUEST FOUND ★</span>
+              <span class="quest-badge">★ JOB DETECTED ★</span>
             </div>
             <h3 id="jobTitle" class="job-title">Loading...</h3>
             <p id="companyName" class="company-name">
-              <span class="pixel-icon">🏰</span>
+              <span class="pixel-icon">🏢</span>
               <span>Company Name</span>
             </p>
             <div class="job-tags" id="jobTechTags"></div>
           </div>
 
-          <div id="managerInfo" class="npc-card hidden">
-            <div class="npc-header">
-              <span class="npc-sprite">👤</span>
-              <div class="npc-details">
-                <span class="npc-label">QUEST GIVER</span>
-                <span id="managerName" class="npc-name">Unknown NPC</span>
+          <div id="companyInfo" class="company-card hidden">
+            <div class="company-header">
+              <span class="company-sprite">🏢</span>
+              <div class="company-details">
+                <span class="company-label">COMPANY INTELLIGENCE</span>
               </div>
             </div>
-            <div class="npc-links">
-              <a id="githubLink" href="#" target="_blank" class="pixel-btn small hidden">
-                <span>🐙</span> GITHUB
+            <div class="company-links">
+              <a id="companyWebsite" href="#" target="_blank" class="pixel-btn small hidden">
+                <span>🌐</span> WEBSITE
               </a>
-              <a id="linkedinLink" href="#" target="_blank" class="pixel-btn small hidden">
-                <span>💼</span> LINKEDIN
+              <a id="companyBlog" href="#" target="_blank" class="pixel-btn small hidden">
+                <span>📝</span> TECH BLOG
               </a>
             </div>
-            <div id="npcTechStack" class="npc-tech hidden">
-              <span class="tech-label">KNOWN SKILLS:</span>
-              <div id="npcTechTags" class="tech-tags"></div>
+            <div id="companyTechStack" class="company-tech hidden">
+              <span class="tech-label">TECH STACK:</span>
+              <div id="companyTechTags" class="tech-tags"></div>
             </div>
+            <div id="companyProjects" class="company-projects hidden"></div>
           </div>
 
           <button id="generateBtn" class="pixel-btn primary large" disabled>
             <span class="btn-icon">⚡</span>
-            <span class="btn-text">GENERATE QUEST ITEMS</span>
+            <span class="btn-text">GENERATE PROJECT IDEAS</span>
             <span class="btn-loader hidden"></span>
           </button>
 
           <div id="projectIdeas" class="loot-container hidden">
             <div class="loot-header">
-              <span>🎁</span> QUEST REWARDS UNLOCKED <span>🎁</span>
+              <span>💡</span> PROJECT IDEAS GENERATED <span>💡</span>
             </div>
             <div id="ideasList" class="loot-list"></div>
           </div>
@@ -328,8 +328,8 @@
       <section id="inventory" class="tab-content">
         <div class="panel inventory-panel">
           <div class="panel-header">
-            <span class="panel-icon">🎒</span>
-            <span>INVENTORY</span>
+            <span class="panel-icon">💡</span>
+            <span>SAVED IDEAS</span>
             <span class="item-count" id="inventoryCount">0 ITEMS</span>
           </div>
 
@@ -337,7 +337,7 @@
             <div class="empty-inventory">
               <span class="empty-icon">📦</span>
               <p>YOUR INVENTORY IS EMPTY!</p>
-              <p class="empty-hint">COMPLETE QUESTS TO COLLECT LOOT</p>
+              <p class="empty-hint">SAVE PROJECT IDEAS TO FILL YOUR INVENTORY</p>
             </div>
           </div>
 
@@ -373,27 +373,12 @@
             <p class="config-hint">KEYS ARE STORED LOCALLY ONLY</p>
 
             <div class="input-group">
-              <label>OPENAI KEY <span class="required">*REQ</span></label>
+              <label>OPENAI KEY <span class="required">*REQUIRED</span></label>
               <div class="input-with-toggle">
-                <input type="password" id="openaiKey" class="pixel-input" placeholder="sk-...">
+                <input type="password" id="openaiKey" class="pixel-input" placeholder="sk-proj-...">
                 <button class="toggle-btn" data-target="openaiKey">👁</button>
               </div>
-            </div>
-
-            <div class="input-group">
-              <label>GITHUB TOKEN</label>
-              <div class="input-with-toggle">
-                <input type="password" id="githubToken" class="pixel-input" placeholder="ghp_...">
-                <button class="toggle-btn" data-target="githubToken">👁</button>
-              </div>
-            </div>
-
-            <div class="input-group">
-              <label>SERPAPI KEY</label>
-              <div class="input-with-toggle">
-                <input type="password" id="serpApiKey" class="pixel-input" placeholder="YOUR KEY">
-                <button class="toggle-btn" data-target="serpApiKey">👁</button>
-              </div>
+              <p class="config-note">Used for company research & project idea generation</p>
             </div>
           </div>
 
@@ -441,7 +426,7 @@
         PRESS START TO LEVEL UP YOUR CAREER 
         <span class="blink">●</span>
       </div>
-      <div class="credits">© 2024 REPOCOMPASS</div>
+      <div class="credits">© 2025 REPOCOMPASS</div>
     </footer>
   </div>
 

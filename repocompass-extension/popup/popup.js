@@ -79,7 +79,7 @@ const CHARACTER_CLASSES = [
 // STATE
 // ==========================================
 let currentJobData = null;
-let currentManagerData = null;
+let currentCompanyData = null;
 let playerStats = {
   name: 'HERO_DEV',
   skills: {},
@@ -115,12 +115,13 @@ function initializeElements() {
   elements.jobTitle = document.getElementById('jobTitle');
   elements.companyName = document.getElementById('companyName');
   elements.jobTechTags = document.getElementById('jobTechTags');
-  elements.managerInfo = document.getElementById('managerInfo');
-  elements.managerName = document.getElementById('managerName');
-  elements.githubLink = document.getElementById('githubLink');
-  elements.linkedinLink = document.getElementById('linkedinLink');
-  elements.npcTechStack = document.getElementById('npcTechStack');
-  elements.npcTechTags = document.getElementById('npcTechTags');
+  elements.companyInfo = document.getElementById('companyInfo');
+  elements.companyWebsite = document.getElementById('companyWebsite');
+  elements.companyBlog = document.getElementById('companyBlog');
+  elements.companyGithub = document.getElementById('companyGithub');
+  elements.companyTechStack = document.getElementById('companyTechStack');
+  elements.companyTechTags = document.getElementById('companyTechTags');
+  elements.companyProjects = document.getElementById('companyProjects');
   elements.generateBtn = document.getElementById('generateBtn');
   elements.projectIdeas = document.getElementById('projectIdeas');
   elements.ideasList = document.getElementById('ideasList');
@@ -143,8 +144,6 @@ function initializeElements() {
   // Config tab
   elements.configPlayerName = document.getElementById('configPlayerName');
   elements.openaiKey = document.getElementById('openaiKey');
-  elements.githubToken = document.getElementById('githubToken');
-  elements.serpApiKey = document.getElementById('serpApiKey');
   elements.enableCache = document.getElementById('enableCache');
   elements.autoAnalyze = document.getElementById('autoAnalyze');
   elements.enableSounds = document.getElementById('enableSounds');
@@ -358,7 +357,7 @@ async function checkCurrentTab() {
       if (response && response.success) {
         currentJobData = response.data;
         displayJobInfo(currentJobData);
-        await analyzeHiringManager(currentJobData);
+        await analyzeCompany(currentJobData);
       } else {
         updateStatus('error', '❌', 'QUEST DATA CORRUPTED. TRY REFRESHING THE DUNGEON.');
       }
@@ -397,55 +396,103 @@ function displayJobInfo(jobData) {
   updateStatus('success', '⚔️', 'QUEST IDENTIFIED! ANALYZING NPC...');
 }
 
-async function analyzeHiringManager(jobData) {
+async function analyzeCompany(jobData) {
   try {
-    const settings = await getSettings();
-    
+    updateStatus('analyzing', '🔍', 'RESEARCHING COMPANY INTELLIGENCE...');
+
     const response = await chrome.runtime.sendMessage({
-      action: 'analyzeManager',
+      action: 'analyzeCompany',
       data: {
-        hiringManager: jobData.hiringManager,
         company: jobData.company,
+        jobDescription: jobData.description,
         jobTitle: jobData.title
       }
     });
-    
+
     if (response.success && response.data) {
-      currentManagerData = response.data;
-      displayManagerInfo(response.data);
+      currentCompanyData = response.data;
+      displayCompanyInfo(response.data);
     } else {
-      currentManagerData = { name: 'Unknown NPC', github: null, linkedin: null, techStack: [] };
-      displayManagerInfo(currentManagerData);
+      currentCompanyData = {
+        company: jobData.company,
+        website: null,
+        engineeringBlog: null,
+        techStack: [],
+        recentProjects: [],
+        insights: []
+      };
+      displayCompanyInfo(currentCompanyData);
     }
-    
+
     elements.generateBtn.disabled = false;
     updateStatus('ready', '✨', 'READY TO GENERATE QUEST ITEMS!');
-    
+
   } catch (error) {
-    console.error('Manager analysis error:', error);
+    console.error('Company analysis error:', error);
     elements.generateBtn.disabled = false;
+    updateStatus('ready', '⚡', 'COMPANY ANALYSIS INCOMPLETE - GENERATE ANYWAY');
   }
 }
 
-function displayManagerInfo(managerData) {
-  elements.managerInfo.classList.remove('hidden');
-  elements.managerName.textContent = managerData.name || 'Unknown NPC';
-  
-  if (managerData.github) {
-    elements.githubLink.href = managerData.github;
-    elements.githubLink.classList.remove('hidden');
+function displayCompanyInfo(companyData) {
+  if (!companyData) return;
+
+  elements.companyInfo.classList.remove('hidden');
+
+  // Display website link
+  if (companyData.website) {
+    elements.companyWebsite.href = companyData.website;
+    elements.companyWebsite.classList.remove('hidden');
+  } else {
+    elements.companyWebsite.classList.add('hidden');
   }
-  
-  if (managerData.linkedin) {
-    elements.linkedinLink.href = managerData.linkedin;
-    elements.linkedinLink.classList.remove('hidden');
+
+  // Display blog link
+  if (companyData.engineeringBlog) {
+    elements.companyBlog.href = companyData.engineeringBlog;
+    elements.companyBlog.classList.remove('hidden');
+  } else {
+    elements.companyBlog.classList.add('hidden');
   }
-  
-  if (managerData.techStack && managerData.techStack.length > 0) {
-    elements.npcTechStack.classList.remove('hidden');
-    elements.npcTechTags.innerHTML = managerData.techStack
+
+  // Display GitHub org link
+  if (companyData.githubOrg) {
+    elements.companyGithub.href = companyData.githubOrg;
+    elements.companyGithub.classList.remove('hidden');
+  } else {
+    elements.companyGithub.classList.add('hidden');
+  }
+
+  // Display tech stack
+  if (companyData.techStack && companyData.techStack.length > 0) {
+    elements.companyTechStack.classList.remove('hidden');
+    elements.companyTechTags.innerHTML = companyData.techStack
+      .slice(0, 8)
       .map(tech => `<span class="tech-tag">${tech}</span>`)
       .join('');
+  } else {
+    elements.companyTechStack.classList.add('hidden');
+  }
+
+  // Display recent projects
+  if (companyData.recentProjects && companyData.recentProjects.length > 0) {
+    elements.companyProjects.classList.remove('hidden');
+    elements.companyProjects.innerHTML = `
+      <div class="company-projects-header">
+        <span class="projects-icon">🚀</span>
+        <span>RECENT COMPANY INITIATIVES</span>
+      </div>
+      <div class="projects-list">
+        ${companyData.recentProjects.slice(0, 3).map(project => `
+          <div class="project-item">
+            <div class="project-name">${project.name}</div>
+            <div class="project-desc">${project.description}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else {
+    elements.companyProjects.classList.add('hidden');
   }
 }
 
@@ -468,12 +515,12 @@ elements.generateBtn?.addEventListener('click', async () => {
       throw new Error('OPENAI API KEY REQUIRED! CHECK CONFIG.');
     }
     
-    // Include player stats in the generation request
+    // Include player stats and company data in the generation request
     const response = await chrome.runtime.sendMessage({
       action: 'generateIdeas',
       data: {
         jobData: currentJobData,
-        managerData: currentManagerData,
+        companyData: currentCompanyData,
         playerStats: playerStats.skills,
         apiKey: settings.openaiKey
       }
@@ -630,16 +677,14 @@ function setupConfigControls() {
 
 async function loadConfig() {
   const settings = await getSettings();
-  
+
   elements.configPlayerName.value = playerStats.name || 'HERO_DEV';
   elements.openaiKey.value = settings.openaiKey || '';
-  elements.githubToken.value = settings.githubToken || '';
-  elements.serpApiKey.value = settings.serpApiKey || '';
   elements.enableCache.checked = settings.enableCache !== false;
   elements.autoAnalyze.checked = settings.autoAnalyze || false;
   elements.enableSounds.checked = settings.enableSounds !== false;
   elements.enableCrt.checked = settings.enableCrt !== false;
-  
+
   // Apply CRT setting
   document.body.classList.toggle('no-crt', !settings.enableCrt);
 }
@@ -647,20 +692,18 @@ async function loadConfig() {
 async function saveConfig() {
   const newName = elements.configPlayerName.value.trim().toUpperCase() || 'HERO_DEV';
   playerStats.name = newName;
-  
+
   const settings = {
     openaiKey: elements.openaiKey.value.trim(),
-    githubToken: elements.githubToken.value.trim(),
-    serpApiKey: elements.serpApiKey.value.trim(),
     enableCache: elements.enableCache.checked,
     autoAnalyze: elements.autoAnalyze.checked,
     enableSounds: elements.enableSounds.checked,
     enableCrt: elements.enableCrt.checked
   };
-  
+
   await chrome.storage.local.set({ settings });
   await savePlayerStats();
-  
+
   updatePlayerBar();
   showConfigStatus('CONFIG SAVED!', 'success');
   playSound('save');
