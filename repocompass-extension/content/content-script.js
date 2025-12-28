@@ -71,22 +71,31 @@ function detectSite() {
   return cachedSite;
 }
 
-// Optimized: Query with combined selector, fallback to individual
+// Improved: Try all selectors until finding one with non-empty text
 function getText(selectorString) {
   if (!selectorString) return null;
-  try {
-    const element = document.querySelector(selectorString);
-    return element?.textContent?.trim() || null;
-  } catch (error) {
-    const selectors = selectorString.split(', ');
-    for (const sel of selectors) {
-      try {
-        const element = document.querySelector(sel);
-        if (element?.textContent) return element.textContent.trim();
-      } catch (e) { /* skip */ }
+
+  // Split selectors and try each one until we find non-empty text
+  const selectors = selectorString.split(', ').map(s => s.trim());
+
+  for (const selector of selectors) {
+    try {
+      const element = document.querySelector(selector);
+      const text = element?.textContent?.trim();
+
+      // If we found non-empty text, return it immediately
+      if (text) {
+        console.log(`[RepoComPass] getText matched: "${selector}" → "${text.substring(0, 50)}..."`);
+        return text;
+      }
+    } catch (e) {
+      // Continue to next selector on error
+      console.debug(`[RepoComPass] getText failed for selector: "${selector}"`, e.message);
     }
-    return null;
   }
+
+  console.warn(`[RepoComPass] getText found no match for any selector in: ${selectorString.substring(0, 100)}...`);
+  return null; // No selector found non-empty text
 }
 
 // Optimized: Single querySelectorAll
@@ -220,6 +229,8 @@ function extractJobData(options = {}) {
   console.log('[RepoComPass] Extraction attempt on', site, ':', {
     titleFound: !!title,
     companyFound: !!company,
+    titlePreview: title?.substring(0, 50), // Show first 50 chars
+    companyPreview: company?.substring(0, 50), // Show first 50 chars
     url: window.location.href
   });
   

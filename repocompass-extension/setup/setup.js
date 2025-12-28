@@ -500,7 +500,8 @@ async function completeSetup() {
 
     // Redirect to main popup after animation
     setTimeout(() => {
-      window.location.href = '../popup/popup.html';
+      // Use window.location.href to navigate to popup in the same window
+      window.location.href = chrome.runtime.getURL('popup/popup.html');
     }, 3000); // 3 seconds for animation
 
   } catch (error) {
