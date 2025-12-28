@@ -529,6 +529,14 @@ elements.generateBtn?.addEventListener('click', async () => {
   playSound('generate');
 
   console.log('[RepoComPass] Generate Ideas: Starting generation process');
+  console.log('[RepoComPass] Current State:', {
+    hasJobData: !!currentJobData,
+    jobTitle: currentJobData?.title,
+    jobCompany: currentJobData?.company,
+    hasCompanyData: !!currentCompanyData,
+    companyName: currentCompanyData?.company,
+    playerSkills: playerStats.skills
+  });
 
   try {
     const settings = await getSettings();
@@ -536,6 +544,17 @@ elements.generateBtn?.addEventListener('click', async () => {
     if (!settings.openaiKey) {
       throw new Error('OPENAI API KEY REQUIRED! CHECK CONFIG.');
     }
+
+    // Validate we have job data
+    if (!currentJobData || !currentJobData.title) {
+      throw new Error('NO JOB DATA! Please navigate to a job posting first.');
+    }
+
+    console.log('[RepoComPass] Sending generateIdeas request with:', {
+      jobData: currentJobData,
+      companyData: currentCompanyData,
+      playerStats: playerStats.skills
+    });
 
     // Include player stats and company data in the generation request
     const response = await chrome.runtime.sendMessage({

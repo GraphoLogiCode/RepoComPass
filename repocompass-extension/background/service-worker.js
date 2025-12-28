@@ -4,8 +4,8 @@
 const API_CONFIG = {
   openai: {
     baseUrl: 'https://api.openai.com/v1',
-    modelPrimary: 'gpt-5-mini-2025-08-07',
-    useResponsesAPI: true // Enable Responses API for tool support (file search, web search)
+    // Use gpt-4o-mini with Responses API - supports web_search tool
+    modelPrimary: 'gpt-4o-mini'
   }
 };
 
@@ -135,6 +135,27 @@ Return ONLY a valid JSON object with this structure:
 }`;
 
   try {
+    const requestBody = {
+      model: API_CONFIG.openai.modelPrimary,
+      instructions: 'You are a company research assistant that provides accurate, factual information about companies and their technology practices. Use web search to find current information. Always respond with valid JSON.',
+      input: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      tools: [
+        { type: 'web_search' }
+      ],
+      temperature: 0.3,
+      max_output_tokens: 2000,
+      text: {
+        format: { type: 'json_object' }
+      }
+    };
+
+    console.log('[RepoComPass] enrichCompanyWithAI - Request body:', JSON.stringify(requestBody, null, 2).substring(0, 500));
+
     // Use Responses API with web_search tool for real-time company research
     const response = await fetch(`${API_CONFIG.openai.baseUrl}/responses`, {
       method: 'POST',
@@ -142,42 +163,38 @@ Return ONLY a valid JSON object with this structure:
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
-      body: JSON.stringify({
-        model: API_CONFIG.openai.modelPrimary,
-        instructions: 'You are a company research assistant that provides accurate, factual information about companies and their technology practices. Use web search to find current information. Always respond with valid JSON.',
-        input: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        tools: [
-          { type: 'web_search' } // Enable web search for real-time data
-        ],
-        temperature: 0.3,
-        max_output_tokens: 2000,
-        text: {
-          format: { type: 'json_object' }
-        }
-      })
+      body: JSON.stringify(requestBody)
     });
 
+    console.log('[RepoComPass] enrichCompanyWithAI - Response status:', response.status);
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'OpenAI API error');
+      const errorBody = await response.text();
+      console.error('[RepoComPass] enrichCompanyWithAI - API Error:', errorBody);
+      try {
+        const error = JSON.parse(errorBody);
+        throw new Error(error.error?.message || `OpenAI API error (${response.status})`);
+      } catch (e) {
+        throw new Error(`OpenAI API error (${response.status}): ${errorBody.substring(0, 200)}`);
+      }
     }
 
     const result = await response.json();
+    console.log('[RepoComPass] enrichCompanyWithAI - Full API response:', JSON.stringify(result, null, 2).substring(0, 1000));
     
     // Responses API output structure: output[].content[] where each content item has type and text
     // Find the text content from the output
     let textContent = null;
     if (result.output && Array.isArray(result.output)) {
+      console.log('[RepoComPass] Parsing output array, length:', result.output.length);
       for (const outputItem of result.output) {
+        console.log('[RepoComPass] Output item type:', outputItem.type);
         if (outputItem.type === 'message' && outputItem.content) {
           for (const contentItem of outputItem.content) {
+            console.log('[RepoComPass] Content item type:', contentItem.type);
             if (contentItem.type === 'output_text' || contentItem.type === 'text') {
               textContent = contentItem.text;
+              console.log('[RepoComPass] Found text content, length:', textContent?.length);
               break;
             }
           }
@@ -188,12 +205,13 @@ Return ONLY a valid JSON object with this structure:
     
     // Fallback for Chat Completions API format
     if (!textContent && result.choices?.[0]?.message?.content) {
+      console.log('[RepoComPass] Using Chat Completions fallback');
       textContent = result.choices[0].message.content;
     }
     
     if (!textContent) {
-      console.error('Unexpected API response structure:', JSON.stringify(result, null, 2));
-      throw new Error('Could not parse API response');
+      console.error('[RepoComPass] Could not find text in response:', JSON.stringify(result, null, 2));
+      throw new Error('Could not parse API response - no text content found');
     }
     
     const companyData = JSON.parse(textContent);
@@ -214,13 +232,58 @@ Return ONLY a valid JSON object with this structure:
 async function generateIdeas(data) {
   const { jobData, companyData, playerStats, apiKey } = data;
 
+  console.log('[RepoComPass] generateIdeas called with:', {
+    hasJobData: !!jobData,
+    jobTitle: jobData?.title,
+    jobCompany: jobData?.company,
+    hasCompanyData: !!companyData,
+    hasPlayerStats: !!playerStats,
+    hasApiKey: !!apiKey
+  });
+
   if (!apiKey) {
-    throw new Error('OpenAI API key is required');
+    return { success: false, error: 'OpenAI API key is required', ideas: [] };
+  }
+
+  if (!jobData || !jobData.title) {
+    return { success: false, error: 'Job data is missing', ideas: [] };
   }
 
   const prompt = buildPrompt(jobData, companyData, playerStats);
+  console.log('[RepoComPass] Built prompt, length:', prompt.length);
+  console.log('[RepoComPass] Prompt preview:', prompt.substring(0, 500));
 
   try {
+    const requestBody = {
+      model: API_CONFIG.openai.modelPrimary,
+      instructions: `You are a career advisor helping job seekers stand out by suggesting impressive portfolio projects.
+Generate creative, practical project ideas that:
+1. Directly relate to the job requirements and company's tech stack
+2. Demonstrate relevant technical skills the candidate has
+3. Align with the company's recent projects and initiatives
+4. Are achievable in 1-2 weeks
+5. Stand out from typical portfolio projects
+6. Show understanding of the company's domain and challenges
+
+Use web search when you need current information about the company or technologies. Always respond with valid JSON.`,
+      input: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      tools: [
+        { type: 'web_search' }
+      ],
+      temperature: 0.8,
+      max_output_tokens: 2000,
+      text: {
+        format: { type: 'json_object' }
+      }
+    };
+
+    console.log('[RepoComPass] generateIdeas - Sending request to OpenAI...');
+
     // Use Responses API with web_search for current company context
     const response = await fetch(`${API_CONFIG.openai.baseUrl}/responses`, {
       method: 'POST',
@@ -228,41 +291,25 @@ async function generateIdeas(data) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
-      body: JSON.stringify({
-        model: API_CONFIG.openai.modelPrimary,
-        instructions: `You are a career advisor helping job seekers stand out by suggesting impressive portfolio projects.
-            Generate creative, practical project ideas that:
-            1. Directly relate to the job requirements and company's tech stack
-            2. Demonstrate relevant technical skills the candidate has
-            3. Align with the company's recent projects and initiatives
-            4. Are achievable in 1-2 weeks
-            5. Stand out from typical portfolio projects
-            6. Show understanding of the company's domain and challenges
-
-            Use web search when you need current information about the company or technologies. Always respond with valid JSON.`,
-        input: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        tools: [
-          { type: 'web_search' }
-        ],
-        temperature: 0.8,
-        max_output_tokens: 2000,
-        text: {
-          format: { type: 'json_object' }
-        }
-      })
+      body: JSON.stringify(requestBody)
     });
 
+    console.log('[RepoComPass] generateIdeas - Response status:', response.status);
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'OpenAI API error');
+      const errorBody = await response.text();
+      console.error('[RepoComPass] generateIdeas - API Error:', errorBody);
+      try {
+        const error = JSON.parse(errorBody);
+        throw new Error(error.error?.message || `OpenAI API error (${response.status})`);
+      } catch (e) {
+        if (e.message.includes('OpenAI API error')) throw e;
+        throw new Error(`OpenAI API error (${response.status}): ${errorBody.substring(0, 200)}`);
+      }
     }
 
     const result = await response.json();
+    console.log('[RepoComPass] generateIdeas - Full API response:', JSON.stringify(result, null, 2).substring(0, 1500));
 
     console.log('[RepoComPass] Generate Ideas: Raw API response received', {
       hasOutput: !!result.output,
@@ -277,8 +324,10 @@ async function generateIdeas(data) {
       console.log('[RepoComPass] Parsing Responses API format, output length:', result.output.length);
 
       for (const outputItem of result.output) {
+        console.log('[RepoComPass] Output item:', outputItem.type, outputItem.content?.length || 0, 'content items');
         if (outputItem.type === 'message' && outputItem.content) {
           for (const contentItem of outputItem.content) {
+            console.log('[RepoComPass] Content item type:', contentItem.type);
             if (contentItem.type === 'output_text' || contentItem.type === 'text') {
               textContent = contentItem.text;
               console.log('[RepoComPass] Found text content, length:', textContent?.length || 0);
