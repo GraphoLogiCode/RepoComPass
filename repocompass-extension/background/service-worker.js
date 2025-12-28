@@ -313,8 +313,8 @@ IMPORTANT: You must respond with ONLY a valid JSON object, no other text before 
       tools: [
         { type: 'web_search' }
       ],
+      include: ['web_search_call.action.sources'],
       max_output_tokens: 2000
-      // Note: Cannot use JSON mode with web_search, so we instruct via prompt
     };
 
     console.log('[RepoComPass] generateIdeas - Sending request to OpenAI...');
