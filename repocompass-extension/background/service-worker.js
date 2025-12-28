@@ -6,9 +6,6 @@ const API_CONFIG = {
     baseUrl: 'https://api.openai.com/v1',
     modelPrimary: 'gpt-5-mini-2025-08-07',
     useResponsesAPI: true // Enable Responses API for tool support (file search, web search)
-  },
-  serpApi: {
-    baseUrl: 'https://serpapi.com/search'
   }
 };
 
