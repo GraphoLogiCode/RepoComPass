@@ -39,6 +39,214 @@ function extractJSON(text) {
   }
 }
 
+// JSON Schema for company research (Structured Outputs)
+const COMPANY_RESEARCH_SCHEMA = {
+  name: 'company_research',
+  strict: true,
+  schema: {
+    type: 'object',
+    properties: {
+      company: { type: 'string', description: 'Company name' },
+      website: { type: ['string', 'null'], description: 'Official website URL' },
+      engineeringBlog: { type: ['string', 'null'], description: 'Engineering blog URL' },
+      githubOrg: { type: ['string', 'null'], description: 'GitHub organization URL' },
+      techStack: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Technologies used by the company'
+      },
+      recentProjects: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            description: { type: 'string' },
+            relevance: { type: 'string' }
+          },
+          required: ['name', 'description', 'relevance'],
+          additionalProperties: false
+        },
+        description: 'Recent company projects'
+      },
+      insights: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Insights about company culture and engineering'
+      }
+    },
+    required: ['company', 'website', 'engineeringBlog', 'githubOrg', 'techStack', 'recentProjects', 'insights'],
+    additionalProperties: false
+  }
+};
+
+// JSON Schema for project ideas (Structured Outputs)
+const PROJECT_IDEAS_SCHEMA = {
+  name: 'project_ideas',
+  strict: true,
+  schema: {
+    type: 'object',
+    properties: {
+      projects: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            title: { type: 'string' },
+            description: { type: 'string' },
+            technologies: {
+              type: 'array',
+              items: { type: 'string' }
+            },
+            difficulty: { type: 'string', enum: ['beginner', 'intermediate', 'advanced'] },
+            timeEstimate: { type: 'string' },
+            standoutFactor: { type: 'string' },
+            companyAlignment: { type: 'string' }
+          },
+          required: ['title', 'description', 'technologies', 'difficulty', 'timeEstimate', 'standoutFactor', 'companyAlignment'],
+          additionalProperties: false
+        }
+      }
+    },
+    required: ['projects'],
+    additionalProperties: false
+  }
+};
+
+// Extract text content from Responses API output with robust handling
+function extractTextFromResponseOutput(result) {
+  let textContent = null;
+  let webSearchSources = [];
+  
+  if (result.output && Array.isArray(result.output)) {
+    for (const outputItem of result.output) {
+      // Handle message type (contains the actual text response)
+      if (outputItem.type === 'message' && outputItem.content) {
+        for (const contentItem of outputItem.content) {
+          if (contentItem.type === 'output_text' || contentItem.type === 'text') {
+            textContent = contentItem.text;
+            break;
+          }
+        }
+      }
+      
+      // Collect web search sources if available
+      if (outputItem.type === 'web_search_call' && outputItem.action?.sources) {
+        webSearchSources.push(...outputItem.action.sources);
+      }
+      
+      if (textContent) break;
+    }
+  }
+  
+  // Fallback for Chat Completions API format
+  if (!textContent && result.choices?.[0]?.message?.content) {
+    textContent = result.choices[0].message.content;
+  }
+  
+  return { textContent, webSearchSources };
+}
+
+// Make a Responses API call with continuation support for incomplete responses
+async function callResponsesAPIWithContinuation(requestBody, apiKey, maxIterations = 3) {
+  const baseUrl = API_CONFIG.openai.baseUrl;
+  let iterations = 0;
+  let previousResponseId = null;
+  let finalResult = null;
+  let allWebSearchSources = [];
+  
+  while (iterations < maxIterations) {
+    iterations++;
+    
+    // Build request - use previous_response_id for continuation
+    const currentRequestBody = previousResponseId
+      ? { previous_response_id: previousResponseId }
+      : requestBody;
+    
+    console.log(`[RepoComPass] API call iteration ${iterations}/${maxIterations}`, {
+      isContinuation: !!previousResponseId,
+      previousResponseId
+    });
+    
+    const response = await fetch(`${baseUrl}/responses`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(currentRequestBody)
+    });
+    
+    console.log('[RepoComPass] Response status:', response.status);
+    
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error('[RepoComPass] API Error:', errorBody);
+      try {
+        const error = JSON.parse(errorBody);
+        throw new Error(error.error?.message || `OpenAI API error (${response.status})`);
+      } catch (e) {
+        if (e.message.includes('OpenAI API error')) throw e;
+        throw new Error(`OpenAI API error (${response.status}): ${errorBody.substring(0, 200)}`);
+      }
+    }
+    
+    const result = await response.json();
+    console.log('[RepoComPass] Response received:', {
+      status: result.status,
+      id: result.id,
+      outputLength: result.output?.length,
+      incompleteReason: result.incomplete_details?.reason
+    });
+    
+    // Collect web search sources from this response
+    if (result.output) {
+      for (const item of result.output) {
+        if (item.type === 'web_search_call' && item.action?.sources) {
+          allWebSearchSources.push(...item.action.sources);
+        }
+      }
+    }
+    
+    // Check completion status
+    if (result.status === 'completed') {
+      finalResult = result;
+      finalResult._webSearchSources = allWebSearchSources;
+      console.log('[RepoComPass] Response completed successfully');
+      break;
+    } else if (result.status === 'incomplete') {
+      const reason = result.incomplete_details?.reason;
+      console.warn(`[RepoComPass] Response incomplete: ${reason}`);
+      
+      if (reason === 'max_output_tokens' && iterations < maxIterations) {
+        // Continue from where we left off
+        previousResponseId = result.id;
+        console.log('[RepoComPass] Continuing with previous_response_id:', previousResponseId);
+        continue;
+      } else {
+        // Can't continue or other reason - try to extract what we have
+        console.warn('[RepoComPass] Cannot continue, attempting to extract partial result');
+        finalResult = result;
+        finalResult._webSearchSources = allWebSearchSources;
+        break;
+      }
+    } else if (result.status === 'failed') {
+      throw new Error(`API request failed: ${result.error?.message || 'Unknown error'}`);
+    } else {
+      // Unknown status - return what we have
+      finalResult = result;
+      finalResult._webSearchSources = allWebSearchSources;
+      break;
+    }
+  }
+  
+  if (!finalResult) {
+    throw new Error('Failed to get response after maximum iterations');
+  }
+  
+  return finalResult;
+}
+
 // Message handler
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   handleMessage(request, sender)
@@ -132,140 +340,105 @@ async function analyzeCompany(data) {
   }
 }
 
-// Company enrichment using AI
+// Company enrichment using AI with Structured Outputs and continuation support
 async function enrichCompanyWithAI(company, jobDescription, jobTitle, apiKey) {
-  const prompt = `You are a company research assistant. Research and provide accurate, factual information about the following company.
+  const prompt = `Research and provide accurate, factual information about ${company}.
 
-**Company**: ${company}
-**Job Title**: ${jobTitle}
-**Job Description**: ${jobDescription?.substring(0, 1500) || 'Not provided'}
+Job context:
+- Title: ${jobTitle}
+- Description: ${jobDescription?.substring(0, 1000) || 'Not provided'}
 
-Based on your knowledge, provide:
-1. Official website URL
-2. Engineering blog or technical blog URL (if exists)
-3. GitHub organization URL (if exists)
-4. Technologies they likely use (based on the job description and company)
-5. Recent projects, products, or initiatives they're working on
-6. Key insights about their tech culture or engineering practices
+Provide:
+1. Official website URL (or null if unknown)
+2. Engineering/tech blog URL (or null if none)
+3. GitHub org URL (or null if none)
+4. Technologies they use (based on job description and company knowledge)
+5. 2-3 recent projects/products/initiatives
+6. 2-3 insights about their tech culture
 
-**IMPORTANT**: Only include information you are confident about. If you don't know something, say "Unknown" or leave it empty.
-
-Return ONLY a valid JSON object with this structure:
-{
-  "company": "${company}",
-  "website": "https://example.com",
-  "engineeringBlog": "https://blog.example.com" or null,
-  "githubOrg": "https://github.com/orgname" or null,
-  "techStack": ["Technology1", "Technology2", ...],
-  "recentProjects": [
-    {
-      "name": "Project name",
-      "description": "What it does",
-      "relevance": "Why it matters for this role"
-    }
-  ],
-  "insights": [
-    "Insight about company's tech culture",
-    "Engineering practice or value"
-  ],
-  "sources": [
-    "Where this information comes from"
-  ]
-}`;
+Be concise. Only include confident information.`;
 
   try {
     const requestBody = {
       model: API_CONFIG.openai.modelPrimary,
-      instructions: 'You are a company research assistant that provides accurate, factual information about companies and their technology practices. Use web search to find current information. IMPORTANT: You must respond with ONLY a valid JSON object, no other text before or after.',
-      input: [
-        {
-          role: 'user',
-          content: prompt
+      instructions: 'You are a company research assistant. Use web search for current information. Return only the requested JSON structure with factual data.',
+      input: [{ role: 'user', content: prompt }],
+      tools: [{ type: 'web_search' }],
+      include: ['web_search_call.action.sources'],
+      text: {
+        format: {
+          type: 'json_schema',
+          json_schema: COMPANY_RESEARCH_SCHEMA
         }
-      ],
-      tools: [
-        { type: 'web_search' }
-      ],
-      max_output_tokens: 2000
-      // Note: Cannot use JSON mode with web_search, so we instruct via prompt
+      },
+      max_output_tokens: 8000
     };
 
-    console.log('[RepoComPass] enrichCompanyWithAI - Request body:', JSON.stringify(requestBody, null, 2).substring(0, 500));
+    console.log('[RepoComPass] enrichCompanyWithAI - Starting request for:', company);
 
-    // Use Responses API with web_search tool for real-time company research
-    const response = await fetch(`${API_CONFIG.openai.baseUrl}/responses`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestBody)
+    // Use continuation-aware API call
+    const result = await callResponsesAPIWithContinuation(requestBody, apiKey);
+    
+    console.log('[RepoComPass] enrichCompanyWithAI - Response received:', {
+      status: result.status,
+      outputItems: result.output?.length,
+      webSearchSources: result._webSearchSources?.length || 0
     });
 
-    console.log('[RepoComPass] enrichCompanyWithAI - Response status:', response.status);
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error('[RepoComPass] enrichCompanyWithAI - API Error:', errorBody);
-      try {
-        const error = JSON.parse(errorBody);
-        throw new Error(error.error?.message || `OpenAI API error (${response.status})`);
-      } catch (e) {
-        throw new Error(`OpenAI API error (${response.status}): ${errorBody.substring(0, 200)}`);
-      }
-    }
-
-    const result = await response.json();
-    console.log('[RepoComPass] enrichCompanyWithAI - Full API response:', JSON.stringify(result, null, 2).substring(0, 1000));
+    // Extract text content
+    const { textContent, webSearchSources } = extractTextFromResponseOutput(result);
     
-    // Responses API output structure: output[].content[] where each content item has type and text
-    // Find the text content from the output
-    let textContent = null;
-    if (result.output && Array.isArray(result.output)) {
-      console.log('[RepoComPass] Parsing output array, length:', result.output.length);
-      for (const outputItem of result.output) {
-        console.log('[RepoComPass] Output item type:', outputItem.type);
-        if (outputItem.type === 'message' && outputItem.content) {
-          for (const contentItem of outputItem.content) {
-            console.log('[RepoComPass] Content item type:', contentItem.type);
-            if (contentItem.type === 'output_text' || contentItem.type === 'text') {
-              textContent = contentItem.text;
-              console.log('[RepoComPass] Found text content, length:', textContent?.length);
-              break;
-            }
-          }
-        }
-        if (textContent) break;
-      }
-    }
-    
-    // Fallback for Chat Completions API format
-    if (!textContent && result.choices?.[0]?.message?.content) {
-      console.log('[RepoComPass] Using Chat Completions fallback');
-      textContent = result.choices[0].message.content;
-    }
+    // Merge sources from continuation helper
+    const allSources = [...webSearchSources, ...(result._webSearchSources || [])];
     
     if (!textContent) {
-      console.error('[RepoComPass] Could not find text in response:', JSON.stringify(result, null, 2));
+      // Log what we got for debugging
+      console.error('[RepoComPass] No text content in response. Output types:', 
+        result.output?.map(o => o.type).join(', '));
+      
+      // If status was incomplete, provide more context
+      if (result.status === 'incomplete') {
+        throw new Error(`Response incomplete (${result.incomplete_details?.reason}). Model may need more tokens for reasoning.`);
+      }
       throw new Error('Could not parse API response - no text content found');
     }
     
-    // Use helper to extract JSON (handles markdown code blocks)
-    const companyData = extractJSON(textContent);
+    // Parse the JSON (Structured Outputs should guarantee valid JSON)
+    let companyData;
+    try {
+      companyData = JSON.parse(textContent);
+    } catch (e) {
+      // Fallback to extractJSON helper for any markdown wrapping
+      companyData = extractJSON(textContent);
+    }
+    
+    // Attach web search sources from API (not model-generated)
+    if (allSources.length > 0) {
+      companyData.sources = allSources.map(s => ({
+        title: s.title,
+        url: s.url
+      }));
+      console.log('[RepoComPass] Attached', allSources.length, 'web search sources');
+    }
 
-    // Log if tools were used
-    if (result.usage?.web_search_requests > 0) {
-      console.log('Web search was used for this request');
+    // Log usage stats
+    if (result.usage) {
+      console.log('[RepoComPass] Token usage:', {
+        input: result.usage.input_tokens,
+        output: result.usage.output_tokens,
+        reasoning: result.usage.reasoning_tokens,
+        webSearchRequests: result.usage.web_search_requests
+      });
     }
 
     return companyData;
   } catch (error) {
-    console.error('Company enrichment error:', error);
+    console.error('[RepoComPass] Company enrichment error:', error);
     throw error;
   }
 }
 
-// Generate project ideas using OpenAI
+// Generate project ideas using OpenAI with Structured Outputs and continuation support
 async function generateIdeas(data) {
   const { jobData, companyData, playerStats, apiKey } = data;
 
@@ -288,177 +461,99 @@ async function generateIdeas(data) {
 
   const prompt = buildPrompt(jobData, companyData, playerStats);
   console.log('[RepoComPass] Built prompt, length:', prompt.length);
-  console.log('[RepoComPass] Prompt preview:', prompt.substring(0, 500));
 
   try {
     const requestBody = {
       model: API_CONFIG.openai.modelPrimary,
-      instructions: `You are a career advisor helping job seekers stand out by suggesting impressive portfolio projects.
-Generate creative, practical project ideas that:
-1. Directly relate to the job requirements and company's tech stack
-2. Demonstrate relevant technical skills the candidate has
-3. Align with the company's recent projects and initiatives
-4. Are achievable in 1-2 weeks
-5. Stand out from typical portfolio projects
-6. Show understanding of the company's domain and challenges
+      instructions: `You are a career advisor. Generate 3 impressive portfolio project ideas that:
+1. Directly relate to the job requirements
+2. Use the company's tech stack
+3. Are achievable in 1-2 weeks
+4. Stand out from typical projects
 
-Use web search when you need current information about the company or technologies.
-IMPORTANT: You must respond with ONLY a valid JSON object, no other text before or after.`,
-      input: [
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      tools: [
-        { type: 'web_search' }
-      ],
+Use web search for current company information if needed.`,
+      input: [{ role: 'user', content: prompt }],
+      tools: [{ type: 'web_search' }],
       include: ['web_search_call.action.sources'],
-      max_output_tokens: 2000
+      text: {
+        format: {
+          type: 'json_schema',
+          json_schema: PROJECT_IDEAS_SCHEMA
+        }
+      },
+      max_output_tokens: 8000
     };
 
     console.log('[RepoComPass] generateIdeas - Sending request to OpenAI...');
 
-    // Use Responses API with web_search for current company context
-    const response = await fetch(`${API_CONFIG.openai.baseUrl}/responses`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestBody)
+    // Use continuation-aware API call
+    const result = await callResponsesAPIWithContinuation(requestBody, apiKey);
+
+    console.log('[RepoComPass] generateIdeas - Response received:', {
+      status: result.status,
+      outputItems: result.output?.length,
+      webSearchSources: result._webSearchSources?.length || 0
     });
 
-    console.log('[RepoComPass] generateIdeas - Response status:', response.status);
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error('[RepoComPass] generateIdeas - API Error:', errorBody);
-      try {
-        const error = JSON.parse(errorBody);
-        throw new Error(error.error?.message || `OpenAI API error (${response.status})`);
-      } catch (e) {
-        if (e.message.includes('OpenAI API error')) throw e;
-        throw new Error(`OpenAI API error (${response.status}): ${errorBody.substring(0, 200)}`);
-      }
-    }
-
-    const result = await response.json();
-    console.log('[RepoComPass] generateIdeas - Full API response:', JSON.stringify(result, null, 2).substring(0, 1500));
-
-    console.log('[RepoComPass] Generate Ideas: Raw API response received', {
-      hasOutput: !!result.output,
-      hasChoices: !!result.choices,
-      outputType: typeof result.output,
-      choicesType: typeof result.choices
-    });
-
-    // Responses API output structure: output[].content[] where each content item has type and text
-    let textContent = null;
-    if (result.output && Array.isArray(result.output)) {
-      console.log('[RepoComPass] Parsing Responses API format, output length:', result.output.length);
-
-      for (const outputItem of result.output) {
-        console.log('[RepoComPass] Output item:', outputItem.type, outputItem.content?.length || 0, 'content items');
-        if (outputItem.type === 'message' && outputItem.content) {
-          for (const contentItem of outputItem.content) {
-            console.log('[RepoComPass] Content item type:', contentItem.type);
-            if (contentItem.type === 'output_text' || contentItem.type === 'text') {
-              textContent = contentItem.text;
-              console.log('[RepoComPass] Found text content, length:', textContent?.length || 0);
-              break;
-            }
-          }
-        }
-        if (textContent) break;
-      }
-    }
-
-    // Fallback for Chat Completions API format
-    if (!textContent && result.choices?.[0]?.message?.content) {
-      console.log('[RepoComPass] Using Chat Completions API fallback');
-      textContent = result.choices[0].message.content;
-    }
+    // Extract text content using shared helper
+    const { textContent, webSearchSources } = extractTextFromResponseOutput(result);
+    const allSources = [...webSearchSources, ...(result._webSearchSources || [])];
 
     if (!textContent) {
-      console.error('[RepoComPass] API response parsing failed - no text content found', {
-        fullResponse: JSON.stringify(result, null, 2)
-      });
-      throw new Error('Could not parse API response - unexpected format');
+      console.error('[RepoComPass] No text content. Output types:', 
+        result.output?.map(o => o.type).join(', '));
+      
+      if (result.status === 'incomplete') {
+        throw new Error(`Response incomplete (${result.incomplete_details?.reason})`);
+      }
+      throw new Error('Could not parse API response - no text content found');
     }
 
-    console.log('[RepoComPass] Successfully extracted text content, parsing JSON...');
-
+    // Parse JSON (Structured Outputs guarantees valid JSON)
     let content;
     try {
-      // Use helper to extract JSON (handles markdown code blocks)
+      content = JSON.parse(textContent);
+    } catch (e) {
       content = extractJSON(textContent);
-      console.log('[RepoComPass] JSON parsed successfully', {
-        hasProjects: !!content.projects,
-        hasIdeas: !!content.ideas,
-        projectsType: typeof content.projects,
-        ideasType: typeof content.ideas
-      });
-    } catch (parseError) {
-      console.error('[RepoComPass] JSON parsing failed', {
-        error: parseError.message,
-        textContent: textContent.substring(0, 500)
-      });
-      throw new Error('API returned invalid JSON: ' + parseError.message);
     }
 
-    // Extract and validate ideas array
     const ideas = content.projects || content.ideas || [];
 
     if (!Array.isArray(ideas)) {
-      console.error('[RepoComPass] Ideas is not an array', {
-        ideasType: typeof ideas,
-        ideasValue: ideas
-      });
       throw new Error('API response has invalid ideas format (expected array)');
     }
 
     console.log('[RepoComPass] Extracted ideas array, length:', ideas.length);
 
-    // Validate each idea has minimum required fields
+    // Validate each idea has required fields
     const validIdeas = ideas.filter((idea, index) => {
       const isValid = idea && typeof idea === 'object' &&
                       (idea.title || idea.name) &&
                       (idea.description || idea.desc);
-
       if (!isValid) {
-        console.warn('[RepoComPass] Invalid idea at index', index, idea);
+        console.warn('[RepoComPass] Invalid idea at index', index);
       }
-
       return isValid;
     });
 
-    if (validIdeas.length < ideas.length) {
-      console.warn('[RepoComPass] Filtered out invalid ideas', {
-        original: ideas.length,
-        valid: validIdeas.length
+    // Log usage
+    if (result.usage) {
+      console.log('[RepoComPass] Token usage:', {
+        input: result.usage.input_tokens,
+        output: result.usage.output_tokens,
+        reasoning: result.usage.reasoning_tokens,
+        webSearchRequests: result.usage.web_search_requests
       });
-    }
-
-    // Log if web search was used
-    const webSearchUsed = result.usage?.web_search_requests > 0;
-    if (webSearchUsed) {
-      console.log('[RepoComPass] Web search was used for idea generation');
     }
 
     return {
       success: true,
       ideas: validIdeas,
-      webSearchUsed
+      webSearchUsed: result.usage?.web_search_requests > 0,
+      sources: allSources.map(s => ({ title: s.title, url: s.url }))
     };
   } catch (error) {
-    console.error('[RepoComPass] Generate Ideas: Error occurred', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
-
-    // Return structured error instead of throwing
+    console.error('[RepoComPass] Generate Ideas error:', error);
     return {
       success: false,
       error: error.message || 'Unknown error occurred',
