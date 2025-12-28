@@ -157,7 +157,7 @@ Return ONLY a valid JSON object with this structure:
         temperature: 0.3,
         max_output_tokens: 2000,
         text: {
-          format: 'json'
+          format: { type: 'json_object' }
         }
       })
     });
@@ -252,7 +252,7 @@ async function generateIdeas(data) {
         temperature: 0.8,
         max_output_tokens: 2000,
         text: {
-          format: 'json'
+          format: { type: 'json_object' }
         }
       })
     });
