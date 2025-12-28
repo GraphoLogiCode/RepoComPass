@@ -32,7 +32,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 10px;
+  padding: 20px;
   position: relative;
 }
 
@@ -74,8 +74,10 @@ body {
 
 /* Main Container */
 .setup-container {
-  width: 600px;
-  max-height: 95vh;
+  width: 100%;
+  max-width: 550px;
+  min-height: 600px;
+  max-height: 90vh;
   background: var(--panel-bg);
   border: 3px solid var(--border);
   border-radius: 8px;
@@ -114,7 +116,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   padding: 0 10px;
   flex-shrink: 0;
 }
@@ -123,21 +125,21 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   position: relative;
   z-index: 2;
 }
 
 .step-number {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border: 2px solid var(--text-secondary);
   background: var(--dark-bg);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
   color: var(--text-secondary);
   transition: all 0.3s ease;
@@ -158,10 +160,10 @@ body {
 }
 
 .step-label {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text-secondary);
   text-align: center;
-  min-width: 60px;
+  min-width: 50px;
 }
 
 .progress-step.active .step-label {
@@ -176,7 +178,7 @@ body {
   opacity: 0.3;
   margin: 0 -5px;
   position: relative;
-  top: -20px;
+  top: -16px;
 }
 
 @keyframes pulse-glow {
@@ -191,10 +193,10 @@ body {
 /* Setup Pages */
 .setup-pages {
   position: relative;
-  min-height: 450px;
+  min-height: 420px;
   overflow: visible;
   flex: 1;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .setup-page {
@@ -220,28 +222,28 @@ body {
 
 /* Page Content */
 .page-content {
-  padding: 20px 10px;
+  padding: 15px 10px;
 }
 
 .page-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
 .page-icon {
-  font-size: 48px;
+  font-size: 42px;
   display: block;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   animation: float 3s ease-in-out infinite;
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: 20px;
   color: var(--primary);
   text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
   letter-spacing: 2px;
@@ -250,32 +252,32 @@ body {
 /* Welcome Page */
 .welcome-animation {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
 .pixel-logo {
-  font-size: 80px;
-  margin-bottom: 20px;
+  font-size: 70px;
+  margin-bottom: 15px;
   animation: logo-bounce 2s ease-in-out infinite;
 }
 
 @keyframes logo-bounce {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  50% { transform: scale(1.08); }
 }
 
 .game-title {
-  font-size: 36px;
+  font-size: 30px;
   color: var(--primary);
   text-shadow:
     0 0 20px rgba(0, 255, 65, 0.8),
     0 0 40px rgba(0, 255, 65, 0.4);
-  letter-spacing: 4px;
-  margin-bottom: 10px;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
 }
 
 .tagline {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--secondary);
   letter-spacing: 2px;
 }
@@ -292,27 +294,27 @@ body {
   background: rgba(0, 255, 65, 0.05);
   border: 2px solid rgba(0, 255, 65, 0.2);
   border-radius: 8px;
-  padding: 20px;
+  padding: 18px;
 }
 
 .intro-line {
-  font-size: 18px;
+  font-size: 16px;
   color: var(--primary);
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   font-weight: bold;
 }
 
 .intro-desc {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.6;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .feature-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .feature-item {
@@ -321,24 +323,24 @@ body {
   gap: 12px;
   font-size: 13px;
   color: var(--text-secondary);
-  padding: 8px;
+  padding: 10px;
   background: rgba(0, 255, 65, 0.05);
   border-radius: 4px;
   border-left: 3px solid var(--primary);
 }
 
 .feature-icon {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 /* Form Sections */
 .form-section {
-  margin-bottom: 30px;
+  margin-bottom: 25px;
 }
 
 .input-label {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--primary);
   margin-bottom: 10px;
   font-weight: bold;
@@ -349,8 +351,8 @@ body {
   display: inline-block;
   background: var(--error);
   color: var(--dark-bg);
-  font-size: 10px;
-  padding: 2px 8px;
+  font-size: 9px;
+  padding: 3px 8px;
   border-radius: 3px;
   margin-left: 8px;
   font-weight: bold;
@@ -362,7 +364,7 @@ body {
   border: 2px solid var(--text-secondary);
   color: var(--text-primary);
   padding: 12px 15px;
-  font-size: 16px;
+  font-size: 14px;
   font-family: 'Orbitron', monospace;
   border-radius: 4px;
   outline: none;
@@ -370,8 +372,8 @@ body {
 }
 
 .pixel-input.large {
-  font-size: 18px;
-  padding: 15px;
+  font-size: 16px;
+  padding: 14px 16px;
 }
 
 .pixel-input:focus {
@@ -483,14 +485,14 @@ body {
   background: rgba(0, 255, 65, 0.05);
   border: 2px solid rgba(0, 255, 65, 0.2);
   border-radius: 8px;
-  padding: 20px;
+  padding: 18px;
   margin-top: 20px;
 }
 
 .preview-label {
   font-size: 11px;
   color: var(--text-secondary);
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   letter-spacing: 1px;
 }
 
@@ -498,12 +500,12 @@ body {
   display: flex;
   align-items: center;
   gap: 15px;
-  font-size: 18px;
+  font-size: 16px;
   color: var(--primary);
 }
 
 .preview-icon {
-  font-size: 32px;
+  font-size: 30px;
 }
 
 .preview-name {
@@ -515,9 +517,9 @@ body {
 .preview-level {
   background: var(--primary);
   color: var(--dark-bg);
-  padding: 5px 12px;
+  padding: 6px 12px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
 }
 
@@ -526,7 +528,7 @@ body {
   background: rgba(0, 212, 255, 0.05);
   border: 2px solid rgba(0, 212, 255, 0.3);
   border-radius: 8px;
-  padding: 20px;
+  padding: 18px;
   margin-top: 20px;
 }
 
@@ -534,14 +536,14 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--tertiary);
   margin-bottom: 15px;
   font-weight: bold;
 }
 
 .info-icon {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .info-list {
@@ -600,21 +602,21 @@ body {
 /* Stats Allocation */
 .stats-intro {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   padding: 15px;
   background: rgba(0, 255, 65, 0.05);
   border-radius: 8px;
 }
 
 .stats-intro p {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-secondary);
   margin-bottom: 5px;
 }
 
 .points-remaining {
   color: var(--warning);
-  font-size: 24px;
+  font-size: 22px;
   font-weight: bold;
   text-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
 }
@@ -627,8 +629,8 @@ body {
 .skills-allocation {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-height: 350px;
+  gap: 10px;
+  max-height: 320px;
   overflow-y: auto;
   padding-right: 10px;
 }
@@ -672,11 +674,11 @@ body {
 }
 
 .skill-icon {
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .skill-name {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-primary);
   font-weight: bold;
   letter-spacing: 1px;
@@ -685,16 +687,16 @@ body {
 .skill-controls {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 .skill-btn {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   background: var(--dark-bg);
   border: 2px solid var(--primary);
   color: var(--primary);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
@@ -723,21 +725,21 @@ body {
 }
 
 .skill-value {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   color: var(--primary);
-  min-width: 20px;
+  min-width: 22px;
   text-align: center;
 }
 
 /* Completion Page */
 .completion-animation {
   text-align: center;
-  padding: 40px 20px;
+  padding: 35px 20px;
 }
 
 .success-icon-large {
-  font-size: 100px;
+  font-size: 90px;
   margin-bottom: 20px;
   animation: success-pop 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
@@ -757,9 +759,9 @@ body {
 }
 
 .completion-title {
-  font-size: 28px;
+  font-size: 24px;
   color: var(--primary);
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   text-shadow: 0 0 20px rgba(0, 255, 65, 0.6);
   letter-spacing: 2px;
 }
@@ -767,15 +769,15 @@ body {
 .completion-message {
   font-size: 14px;
   color: var(--text-secondary);
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .completion-summary {
   background: rgba(0, 255, 65, 0.05);
   border: 2px solid rgba(0, 255, 65, 0.2);
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 30px;
+  padding: 18px;
+  margin-bottom: 20px;
 }
 
 .summary-item {
@@ -784,7 +786,7 @@ body {
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid rgba(0, 255, 65, 0.1);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .summary-item:last-child {
@@ -848,7 +850,7 @@ body {
 .setup-navigation {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
+  gap: 15px;
   margin-top: auto;
   padding-top: 20px;
   border-top: 2px solid rgba(0, 255, 65, 0.2);
@@ -857,7 +859,7 @@ body {
 
 .pixel-btn {
   padding: 12px 24px;
-  font-size: 14px;
+  font-size: 12px;
   font-family: 'Orbitron', monospace;
   font-weight: bold;
   border: 2px solid;
@@ -865,10 +867,10 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   position: relative;
   overflow: hidden;
 }
@@ -929,8 +931,8 @@ body {
 /* Spinner Animation */
 .spinner {
   display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border: 2px solid rgba(0, 0, 0, 0.3);
   border-top-color: var(--dark-bg);
   border-radius: 50%;
@@ -943,33 +945,4 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* Responsive */
-@media (max-width: 650px) {
-  .setup-container {
-    width: 95%;
-    padding: 20px;
-  }
-
-  .progress-bar {
-    padding: 0;
-  }
-
-  .step-label {
-    font-size: 8px;
-    min-width: 40px;
-  }
-
-  .step-number {
-    width: 30px;
-    height: 30px;
-    font-size: 12px;
-  }
-
-  .game-title {
-    font-size: 28px;
-  }
-
-  .page-title {
-    font-size: 20px;
-  }
-}
+/* Remove responsive - fixed width for popup */
