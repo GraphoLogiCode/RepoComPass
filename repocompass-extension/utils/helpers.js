@@ -262,8 +262,6 @@ export const StorageUtils = {
   async getSettings() {
     const defaults = {
       openaiKey: '',
-      githubToken: '',
-      serpApiKey: '',
       enableCache: true,
       autoAnalyze: false,
       cacheExpiry: 24
