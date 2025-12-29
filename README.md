@@ -608,7 +608,6 @@ class RateLimiter {
 MIT License - see LICENSE file for details.
 
 You are free to:
-- ✓ Use commercially
 - ✓ Modify and distribute
 - ✓ Use privately
 - ✓ Sublicense
