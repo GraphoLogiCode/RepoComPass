@@ -290,8 +290,9 @@ body.no-crt .scanlines {
 }
 
 .tab-text {
-  font-size: 7px;
+  font-size: 10px;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .arcade-tab.active .tab-text {
@@ -403,10 +404,11 @@ body.no-crt .scanlines {
 }
 
 .job-title {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--neon-cyan);
   margin-bottom: 6px;
   text-shadow: 0 0 5px var(--neon-cyan);
+  font-weight: 600;
 }
 
 .company-name {
@@ -426,11 +428,12 @@ body.no-crt .scanlines {
 }
 
 .tech-tag {
-  padding: 3px 8px;
+  padding: 4px 10px;
   background: var(--bg-panel);
   border: 1px solid var(--neon-purple);
-  font-size: 7px;
+  font-size: 11px;
   color: var(--neon-purple);
+  font-weight: 500;
 }
 
 /* Company Card (Company Info) */
@@ -682,9 +685,10 @@ body.no-crt .scanlines {
 }
 
 .loot-name {
-  font-size: 8px;
+  font-size: 13px;
   color: var(--neon-cyan);
   flex: 1;
+  font-weight: 600;
 }
 
 .loot-description {
@@ -1037,13 +1041,15 @@ body.no-crt .scanlines {
 }
 
 .inventory-item-title {
-  font-size: 7px;
+  font-size: 12px;
   color: var(--neon-cyan);
+  font-weight: 600;
 }
 
 .inventory-item-source {
-  font-size: 5px;
+  font-size: 10px;
   color: var(--text-muted);
+  font-weight: 500;
 }
 
 .inventory-item-desc {
@@ -1068,9 +1074,10 @@ body.no-crt .scanlines {
 
 .difficulty-badge {
   font-family: var(--font-pixel);
-  font-size: 7px;
-  padding: 2px 6px;
+  font-size: 9px;
+  padding: 3px 7px;
   border-radius: 2px;
+  font-weight: 500;
 }
 
 .difficulty-badge.beginner {
