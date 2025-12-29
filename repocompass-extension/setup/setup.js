@@ -498,10 +498,9 @@ async function completeSetup() {
       remainingPoints
     });
 
-    // Redirect to main popup after animation
+    // Close the setup window after animation
     setTimeout(() => {
-      // Use window.location.href to navigate to popup in the same window
-      window.location.href = chrome.runtime.getURL('popup/popup.html');
+      window.close();
     }, 3000); // 3 seconds for animation
 
   } catch (error) {
