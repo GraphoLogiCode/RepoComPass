@@ -19,7 +19,7 @@ A gamified Chrome extension that generates personalized portfolio project recomm
 - **30-Second Caching**: Job data cached locally to prevent redundant scraping
 
 ### 💡 AI-Powered Project Generation
-- **GPT-4o-mini Integration**: Uses OpenAI's cost-optimized model with Responses API
+- **GPT-5-mini Integration**: Uses OpenAI's cost-optimized model with Responses API
 - **Structured Outputs**: JSON schema validation ensures reliable, parsable results
 - **Web Search Capability**: Leverages OpenAI's web search for up-to-date company information and tech recommendations
 - **Continuation Support**: Handles long AI responses gracefully
@@ -576,89 +576,7 @@ class RateLimiter {
    - Click extension icon
    - Verify your changes work as expected
 
-### Debugging
-
-**Popup Debugging:**
-1. Open extension popup
-2. Right-click inside popup → **Inspect**
-3. DevTools opens with Console, Network, Sources tabs
-4. View logs, errors, network requests
-
-**Content Script Debugging:**
-1. Navigate to job posting page
-2. Press F12 to open DevTools
-3. Go to **Console** tab
-4. Content script logs appear here
-5. Check **Sources** → **Content scripts** → `content-script.js`
-
-**Service Worker Debugging:**
-1. Go to `chrome://extensions/`
-2. Find RepoComPass card
-3. Click **"service worker"** link
-4. DevTools opens for background context
-5. View API calls, errors, console logs
-
-### Testing Workflow
-
-**Manual Testing Checklist:**
-- [ ] First-time setup completes without errors
-- [ ] Job data extracts correctly on LinkedIn/Indeed/Glassdoor
-- [ ] Company search returns web-sourced data
-- [ ] AI generates 3-5 relevant project ideas
-- [ ] Saved ideas persist after closing extension
-- [ ] Skill points update correctly in STATS tab
-- [ ] Cache reduces duplicate API calls
-- [ ] Settings save and persist across sessions
-- [ ] Character class updates when power level changes
-- [ ] Error messages display for invalid API keys
-
-**Automated Testing:**
-Currently no unit tests. Contributions welcome!
-
-### Key Files to Modify
-
-| File | Purpose | When to Edit |
-|------|---------|--------------|
-| [popup/popup.js](popup/popup.js) | Core logic, RPG system, API calls | Adding features, fixing bugs, logic changes |
-| [popup/popup.html](popup/popup.html) | UI structure, layout | Changing UI elements, adding new sections |
-| [popup/popup.css](popup/popup.css) | Styling, animations | Visual tweaks, color schemes, responsive design |
-| [content/content-script.js](content/content-script.js) | Job scraping, selectors | Supporting new job sites, fixing scraping bugs |
-| [background/service-worker.js](background/service-worker.js) | API proxy, CORS handling | Changing API endpoints, adding new APIs |
-| [setup/setup.js](setup/setup.js) | Onboarding flow | Modifying setup wizard, validation logic |
-| [utils/helpers.js](utils/helpers.js) | Utility classes | Adding new utilities, improving caching |
-| [manifest.json](manifest.json) | Extension config | Permissions, URLs, version updates |
-
-### Adding a New Job Site
-
-1. **Update `manifest.json`**:
-   ```json
-   "host_permissions": [
-     "https://newjobsite.com/*"
-   ],
-   "content_scripts": [{
-     "matches": ["https://newjobsite.com/*"]
-   }]
-   ```
-
-2. **Edit `content/content-script.js`**:
-   - Add URL detection in `detectJobSite()`
-   - Add CSS selectors in `scrapeJobData()`
-   - Test extraction on actual job pages
-
-3. **Test thoroughly** on multiple job postings
-
-### Project Roadmap Ideas
-
-**Planned Features:**
-- [ ] XP system (earn points by analyzing jobs)
-- [ ] Achievements/badges for milestones
-- [ ] Export saved ideas to PDF/Markdown
-- [ ] Browser sync across devices
-- [ ] Dark/light theme toggle
-- [ ] Multiple AI model options (GPT-4, Claude)
-- [ ] Job tracking dashboard
-- [ ] Resume analysis integration
-- [ ] Chrome Web Store publication
+### In the future,
 
 **Contribution Areas:**
 - Additional job site support (Monster, ZipRecruiter, etc.)
@@ -702,7 +620,7 @@ Conditions:
 ## 🙏 Acknowledgments
 
 - **Built with ❤️** for job seekers who want to stand out
-- **Powered by**: OpenAI GPT-4o-mini API (with web search)
+- **Powered by**: OpenAI GPT-5-mini API (with web search)
 - **Inspired by**: Retro arcade games, RPG progression systems
 - **Fonts**: Google Fonts (Orbitron, VT323, Press Start 2P)
 - **Icons**: Custom SVG compass design
