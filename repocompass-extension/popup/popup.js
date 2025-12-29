@@ -567,59 +567,69 @@ function displayCompanyInfo(companyData) {
   elements.companyInfo.classList.remove('hidden');
 
   // Display website link
-  if (companyData.website) {
-    elements.companyWebsite.href = companyData.website;
-    elements.companyWebsite.classList.remove('hidden');
-  } else {
-    elements.companyWebsite.classList.add('hidden');
+  if (elements.companyWebsite) {
+    if (companyData.website) {
+      elements.companyWebsite.href = companyData.website;
+      elements.companyWebsite.classList.remove('hidden');
+    } else {
+      elements.companyWebsite.classList.add('hidden');
+    }
   }
 
   // Display blog link
-  if (companyData.engineeringBlog) {
-    elements.companyBlog.href = companyData.engineeringBlog;
-    elements.companyBlog.classList.remove('hidden');
-  } else {
-    elements.companyBlog.classList.add('hidden');
+  if (elements.companyBlog) {
+    if (companyData.engineeringBlog) {
+      elements.companyBlog.href = companyData.engineeringBlog;
+      elements.companyBlog.classList.remove('hidden');
+    } else {
+      elements.companyBlog.classList.add('hidden');
+    }
   }
 
   // Display GitHub org link
-  if (companyData.githubOrg) {
-    elements.companyGithub.href = companyData.githubOrg;
-    elements.companyGithub.classList.remove('hidden');
-  } else {
-    elements.companyGithub.classList.add('hidden');
+  if (elements.companyGithub) {
+    if (companyData.githubOrg) {
+      elements.companyGithub.href = companyData.githubOrg;
+      elements.companyGithub.classList.remove('hidden');
+    } else {
+      elements.companyGithub.classList.add('hidden');
+    }
   }
 
   // Display tech stack
-  if (companyData.techStack && companyData.techStack.length > 0) {
-    elements.companyTechStack.classList.remove('hidden');
-    elements.companyTechTags.innerHTML = companyData.techStack
-      .slice(0, 8)
-      .map(tech => `<span class="tech-tag">${tech}</span>`)
-      .join('');
-  } else {
-    elements.companyTechStack.classList.add('hidden');
+  if (elements.companyTechStack && elements.companyTechTags) {
+    if (companyData.techStack && companyData.techStack.length > 0) {
+      elements.companyTechStack.classList.remove('hidden');
+      elements.companyTechTags.innerHTML = companyData.techStack
+        .slice(0, 8)
+        .map(tech => `<span class="tech-tag">${tech}</span>`)
+        .join('');
+    } else {
+      elements.companyTechStack.classList.add('hidden');
+    }
   }
 
   // Display recent projects
-  if (companyData.recentProjects && companyData.recentProjects.length > 0) {
-    elements.companyProjects.classList.remove('hidden');
-    elements.companyProjects.innerHTML = `
-      <div class="company-projects-header">
-        <span class="projects-icon">🚀</span>
-        <span>RECENT COMPANY INITIATIVES</span>
-      </div>
-      <div class="projects-list">
-        ${companyData.recentProjects.slice(0, 3).map(project => `
-          <div class="project-item">
-            <div class="project-name">${project.name}</div>
-            <div class="project-desc">${project.description}</div>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  } else {
-    elements.companyProjects.classList.add('hidden');
+  if (elements.companyProjects) {
+    if (companyData.recentProjects && companyData.recentProjects.length > 0) {
+      elements.companyProjects.innerHTML = `
+        <div class="company-projects-header">
+          <span class="projects-icon">🚀</span>
+          <span>RECENT COMPANY INITIATIVES</span>
+        </div>
+        <div class="projects-list">
+          ${companyData.recentProjects.slice(0, 3).map(project => `
+            <div class="project-item">
+              <div class="project-name">${project.name}</div>
+              <div class="project-desc">${project.description}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      elements.companyProjects.classList.remove('hidden');
+    } else {
+      elements.companyProjects.classList.add('hidden');
+    }
   }
 }
 
