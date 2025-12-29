@@ -184,6 +184,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupTabs();
   setupSkillControls();
   setupConfigControls();
+  setupGenerateButton();  // Set up the Generate Ideas button
   await loadAllData();
   await checkCurrentTab();
   updateAllDisplays();
@@ -622,27 +623,35 @@ function displayCompanyInfo(companyData) {
   }
 }
 
-// Generate Ideas Button - Now includes company analysis
-elements.generateBtn?.addEventListener('click', async () => {
-  const btnText = elements.generateBtn.querySelector('.btn-text');
-  const btnLoader = elements.generateBtn.querySelector('.btn-loader');
+// ==========================================
+// GENERATE IDEAS BUTTON SETUP
+// ==========================================
+function setupGenerateButton() {
+  if (!elements.generateBtn) {
+    console.error('[RepoComPass] Generate button not found!');
+    return;
+  }
 
-  elements.generateBtn.disabled = true;
-  elements.errorMessage.classList.add('hidden');
-  playSound('generate');
+  elements.generateBtn.addEventListener('click', async () => {
+    const btnText = elements.generateBtn.querySelector('.btn-text');
+    const btnLoader = elements.generateBtn.querySelector('.btn-loader');
 
-  console.log('[RepoComPass] Generate Ideas: Starting two-step process (analyze + generate)');
-  console.log('[RepoComPass] Current State:', {
-    hasJobData: !!currentJobData,
-    jobTitle: currentJobData?.title,
-    jobCompany: currentJobData?.company,
-    hasCompanyData: !!currentCompanyData,
-    companyName: currentCompanyData?.company,
-    playerSkills: playerStats.skills
-  });
+    elements.generateBtn.disabled = true;
+    elements.errorMessage.classList.add('hidden');
+    playSound('generate');
 
-  try {
-    const settings = await getSettings();
+    console.log('[RepoComPass] Generate Ideas: Starting two-step process (analyze + generate)');
+    console.log('[RepoComPass] Current State:', {
+      hasJobData: !!currentJobData,
+      jobTitle: currentJobData?.title,
+      jobCompany: currentJobData?.company,
+      hasCompanyData: !!currentCompanyData,
+      companyName: currentCompanyData?.company,
+      playerSkills: playerStats.skills
+    });
+
+    try {
+      const settings = await getSettings();
 
     if (!settings.openaiKey) {
       throw new Error('OPENAI API KEY REQUIRED! CHECK CONFIG.');
@@ -739,7 +748,8 @@ elements.generateBtn?.addEventListener('click', async () => {
     btnLoader.classList.add('hidden');
     elements.generateBtn.disabled = false;
   }
-});
+  });
+}
 
 function displayProjectIdeas(ideas) {
   console.log('[RepoComPass] Display Ideas: Called with', {
