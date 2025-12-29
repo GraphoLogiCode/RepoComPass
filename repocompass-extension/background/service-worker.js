@@ -426,16 +426,16 @@ Be concise. Only include confident information.`;
   try {
     const requestBody = {
       model: API_CONFIG.openai.modelPrimary,
-      reasoning_effort: 'low',
+      reasoning: { effort: 'low' },
       instructions: 'You are a company research assistant. Use web search for current information. Be concise and factual. Return valid JSON matching the company research schema.',
       input: [{ role: 'user', content: prompt }],
       tools: [{ type: 'web_search' }],
       tool_choice: 'auto',
       include: ['web_search_call.action.sources'],
       text: {
-        format: { type: 'text' }
+        format: { type: 'text' },
+        verbosity: 'low'
       },
-      verbosity: 'low',
       max_output_tokens: 6000
     };
 
@@ -543,7 +543,7 @@ async function generateIdeas(data) {
   try {
     const requestBody = {
       model: API_CONFIG.openai.modelPrimary,
-      reasoning_effort: 'low',
+      reasoning: { effort: 'low' },
       instructions: `You are a career advisor. Generate 3 impressive portfolio project ideas that:
 1. Directly relate to the job requirements
 2. Use the company's tech stack
@@ -556,9 +556,9 @@ Be concise and practical. Use web search for current company information if need
       tool_choice: 'auto',
       include: ['web_search_call.action.sources'],
       text: {
-        format: { type: 'text' }
+        format: { type: 'text' },
+        verbosity: 'low'
       },
-      verbosity: 'low',
       max_output_tokens: 6000
     };
 
