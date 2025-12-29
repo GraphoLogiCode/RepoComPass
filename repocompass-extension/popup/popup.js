@@ -919,12 +919,18 @@ const DIFFICULTY_POINTS = {
 
 async function loadSavedIdeas() {
   const savedIdeas = playerStats.savedIdeas || [];
-  
+
+  // Null safety checks
+  if (!elements.inventoryCount || !elements.savedIdeasList || !elements.clearInventoryBtn) {
+    console.error('[RepoComPass] loadSavedIdeas: Required elements not found');
+    return;
+  }
+
   const completedCount = savedIdeas.filter(i => i.completed).length;
   const pendingCount = savedIdeas.length - completedCount;
-  
+
   elements.inventoryCount.textContent = `${pendingCount} PENDING | ${completedCount} DONE`;
-  
+
   if (savedIdeas.length === 0) {
     elements.savedIdeasList.innerHTML = `
       <div class="empty-inventory">
@@ -936,7 +942,7 @@ async function loadSavedIdeas() {
     elements.clearInventoryBtn.classList.add('hidden');
     return;
   }
-  
+
   elements.clearInventoryBtn.classList.remove('hidden');
   elements.savedIdeasList.innerHTML = savedIdeas.map((idea, index) => {
     const isCompleted = idea.completed;
