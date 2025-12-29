@@ -426,17 +426,17 @@ Be concise. Only include confident information.`;
   try {
     const requestBody = {
       model: API_CONFIG.openai.modelPrimary,
-      reasoning: { effort: 'low' },  // Limit reasoning tokens to prevent incomplete outputs
-      instructions: 'You are a company research assistant. Use web search for current information. Return valid JSON matching the company research schema with factual data.',
+      reasoning_effort: 'low',
+      instructions: 'You are a company research assistant. Use web search for current information. Be concise and factual. Return valid JSON matching the company research schema.',
       input: [{ role: 'user', content: prompt }],
       tools: [{ type: 'web_search' }],
-      tool_choice: 'auto',  // Let model decide when to use web search
+      tool_choice: 'auto',
       include: ['web_search_call.action.sources'],
       text: {
-        format: { type: 'text' },  // Use text format instead of strict JSON to allow citations
-        verbosity: 'low'  // Reduce output length to save tokens
+        format: { type: 'text' }
       },
-      max_output_tokens: 10000  // Increased buffer for reasoning + output
+      verbosity: 'low',
+      max_output_tokens: 6000
     };
 
     console.log('[RepoComPass] enrichCompanyWithAI - Starting request for:', company);
@@ -543,23 +543,23 @@ async function generateIdeas(data) {
   try {
     const requestBody = {
       model: API_CONFIG.openai.modelPrimary,
-      reasoning: { effort: 'low' },  // Limit reasoning tokens to prevent incomplete outputs
+      reasoning_effort: 'low',
       instructions: `You are a career advisor. Generate 3 impressive portfolio project ideas that:
 1. Directly relate to the job requirements
 2. Use the company's tech stack
 3. Are achievable in 1-2 weeks
 4. Stand out from typical projects
 
-Use web search for current company information if needed. Return valid JSON matching the project ideas schema.`,
+Be concise and practical. Use web search for current company information if needed. Return valid JSON matching the project ideas schema.`,
       input: [{ role: 'user', content: prompt }],
       tools: [{ type: 'web_search' }],
-      tool_choice: 'auto',  // Let model decide when to use web search
+      tool_choice: 'auto',
       include: ['web_search_call.action.sources'],
       text: {
-        format: { type: 'text' },  // Use text format instead of strict JSON to allow citations
-        verbosity: 'low'  // Reduce output length to save tokens
+        format: { type: 'text' }
       },
-      max_output_tokens: 10000  // Increased buffer for reasoning + output
+      verbosity: 'low',
+      max_output_tokens: 6000
     };
 
     console.log('[RepoComPass] generateIdeas - Sending request to OpenAI...');

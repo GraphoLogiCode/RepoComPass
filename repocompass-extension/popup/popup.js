@@ -636,8 +636,16 @@ function setupGenerateButton() {
     const btnText = elements.generateBtn.querySelector('.btn-text');
     const btnLoader = elements.generateBtn.querySelector('.btn-loader');
 
+    // Validate button elements exist
+    if (!btnText || !btnLoader) {
+      console.error('[RepoComPass] Button elements not found:', { btnText: !!btnText, btnLoader: !!btnLoader });
+      return;
+    }
+
     elements.generateBtn.disabled = true;
-    elements.errorMessage.classList.add('hidden');
+    if (elements.errorMessage) {
+      elements.errorMessage.classList.add('hidden');
+    }
     playSound('generate');
 
     console.log('[RepoComPass] Generate Ideas: Starting two-step process (analyze + generate)');
