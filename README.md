@@ -221,7 +221,6 @@ Total: ~4,800 lines of code | ~170KB | Zero dependencies
 └─────────────────────────────────────────────────────────────┘
 ```
 
-
 ## 📊 The 9 Skill Domains
 
 | Skill | Icon | Examples | Job Keywords |
@@ -413,16 +412,6 @@ Much cheaper than a cup of coffee, potentially life-changing for your career!*
    - Open a job posting page (LinkedIn/Indeed/Glassdoor)
    - Click extension icon
    - Verify your changes work as expected
-
-### In the future,
-
-**Contribution Areas:**
-- Additional job site support (Monster, ZipRecruiter, etc.)
-- Unit/integration tests
-- Accessibility improvements (ARIA labels, keyboard nav)
-- Internationalization (i18n support)
-- Performance optimizations
-- Bug fixes and error handling
 
 ### Contributing
 
