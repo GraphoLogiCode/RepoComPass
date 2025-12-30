@@ -150,7 +150,6 @@ RepoComPass/
 │
 └── README.md                       # This file
 
-Total: ~4,800 lines of code | ~170KB | Zero dependencies
 ```
 
 ## 🔧 Technical Architecture
@@ -221,7 +220,7 @@ Total: ~4,800 lines of code | ~170KB | Zero dependencies
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 📊 The 9 Skill Domains
+## The 9 Skill Domains
 
 | Skill | Icon | Examples | Job Keywords |
 |-------|------|----------|--------------|
@@ -242,151 +241,85 @@ Total: ~4,800 lines of code | ~170KB | Zero dependencies
 - **Total Max**: 90 points (10 points × 9 skills)
 - **Power Level**: Sum of all skill points determines character class
 - **Future XP System**: Planned feature to earn points by completing analyses
-
-### Cost Optimization Tips
-
-✅ **Enable Caching** (default: ON)
-- Saves 70%+ on repeat analyses of same jobs
-- 24-hour cache prevents redundant API calls
-- Automatically cleared when expired
-
-✅ **Analyze Strategically**
-- Focus on jobs you're seriously considering
-- Review extracted data before generating ideas
-- Use saved ideas as templates for similar jobs
-
-✅ **Continuation Support**
-- Extension handles long responses automatically
-- No extra cost for multi-chunk responses
-
+  
 ### Estimated Monthly Costs
 
 Much cheaper than a cup of coffee, potentially life-changing for your career!*
 
+Below is a **compressed, scannable version** with the same meaning and coverage.
+
+---
+
 ## 🐛 Troubleshooting
 
-### "Could not extract job information"
+### Could not extract job information
 
-**Causes:**
-- Not on a job detail page (on search results instead)
-- Page hasn't fully loaded yet
-- Job site updated their HTML structure
+**Causes**
 
-**Solutions:**
-- ✓ Ensure you're viewing a **single job posting**, not a list
-- ✓ Wait 2-3 seconds after page load, then open extension
-- ✓ Try refreshing the page (F5)
-- ✓ Check if URL matches: `linkedin.com/jobs/view/*`, `indeed.com/viewjob`, or `glassdoor.com/job-listing`
+* Not on a single job page
+* Page not fully loaded
+* Site HTML changed
 
-### "OpenAI API key invalid"
+**Fix**
 
-**Causes:**
-- Key format incorrect
-- Key revoked or expired
-- Account has no credits
+* Open a single job posting (not a list)
+* Wait 2–3s, then open extension
+* Refresh (F5)
+* Check URL: `linkedin.com/jobs/view/*`, `indeed.com/viewjob`, `glassdoor.com/job-listing`
 
-**Solutions:**
-- ✓ Verify key starts with `sk-proj-` or `sk-`
-- ✓ Check key is active in [OpenAI Dashboard](https://platform.openai.com/api-keys)
-- ✓ Confirm you have available credits in billing section
-- ✓ Try creating a new API key
-- ✓ Ensure no extra spaces when pasting key
+---
 
-### "Rate limit exceeded"
+### OpenAI API key invalid
 
-**Causes:**
-- Too many API requests in short time
-- OpenAI rate limit hit
-- Shared IP with high usage
+**Causes**
 
-**Solutions:**
-- ✓ Wait 5-10 minutes before retrying
-- ✓ Check if caching is enabled (should reduce rate limits)
-- ✓ Review `chrome://extensions/` → RepoComPass → Errors for details
+* Wrong format
+* Revoked / expired
+* No credits
 
-### Extension icon not appearing
+**Fix**
 
-**Causes:**
-- Extension not loaded correctly
-- Developer mode disabled
-- Manifest errors
+* Key starts with `sk-` or `sk-proj-`
+* Verify in OpenAI Dashboard
+* Check billing credits
+* Regenerate key if needed
+* Remove extra spaces
 
-**Solutions:**
-- ✓ Go to `chrome://extensions/` and verify RepoComPass is listed
-- ✓ Enable **Developer mode** toggle (top right)
-- ✓ Click **"Load unpacked"** and select the `RepoComPass` folder
-- ✓ Check for red error messages on extension card
-- ✓ Try clicking the puzzle icon 🧩 in toolbar → Pin RepoComPass
+---
 
-### Floating button not appearing on job page
+### Rate limit exceeded
 
-**Causes:**
-- Content script not injected
-- URL doesn't match patterns
-- JavaScript disabled
+**Causes**
 
-**Solutions:**
-- ✓ Verify you're on LinkedIn/Indeed/Glassdoor job page
-- ✓ Refresh page after installing extension
-- ✓ Check `chrome://extensions/` → RepoComPass → Details → Site Access
-- ✓ Ensure "On specific sites" includes the job site
+* Too many requests
+* OpenAI limit hit
+* Shared IP traffic
 
-### "Failed to generate ideas" or empty response
+**Fix**
 
-**Causes:**
-- OpenAI API timeout
-- Network connectivity issues
-- Malformed API request
+* Wait 5–10 minutes
+* Ensure caching is enabled
+* Check errors in `chrome://extensions/` → RepoComPass
 
-**Solutions:**
-- ✓ Check internet connection
-- ✓ Try again in a few seconds (AI response can take 5-15 seconds)
-- ✓ Open DevTools (F12) → Console tab → Look for errors
-- ✓ Verify API key has available credits
-- ✓ Clear cache in CONFIG tab and retry
+---
 
-### Setup wizard stuck or won't complete
+### Extension icon missing
 
-**Causes:**
-- Missing required fields
-- Invalid API key format
-- Browser storage disabled
+**Causes**
 
-**Solutions:**
-- ✓ Ensure player name is 3-16 alphanumeric characters
-- ✓ Paste valid OpenAI API key (starts with `sk-`)
-- ✓ Check that total skill points = 10 (no more, no less)
-- ✓ Enable cookies and local storage in Chrome settings
-- ✓ Try opening extension in new window/tab
+* Not loaded
+* Dev mode off
+* Manifest error
 
-### Chrome storage quota exceeded
+**Fix**
 
-**Causes:**
-- Too many saved ideas (>100)
-- Large cache accumulation
-- Chrome's 10MB limit reached
+* Check RepoComPass in `chrome://extensions/`
+* Enable Developer Mode
+* Reload via “Load unpacked”
+* Fix any red errors
+* Pin from puzzle icon 🧩
 
-**Solutions:**
-- ✓ Delete old saved ideas in IDEAS tab
-- ✓ Clear cache in CONFIG tab
-- ✓ Check storage usage in DevTools → Application → Storage
-  
-### Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Test thoroughly
-5. Commit with clear message (`git commit -m 'Add amazing feature'`)
-6. Push to branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
-**Code Style:**
-- Use ES6+ JavaScript features
-- 2-space indentation
-- Clear variable names (no single letters except loops)
-- Add comments for complex logic
-- Follow existing code structure
+---
 
 ## 📜 License
 
@@ -401,7 +334,7 @@ Conditions:
 - Include original license and copyright notice
 - No warranty provided
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **Built with ❤️** for job seekers who want to stand out
 - **Powered by**: OpenAI GPT-5-mini API (with web search)
@@ -411,7 +344,7 @@ Conditions:
 
 ---
 
-**Ready to level up your career?** Install RepoComPass and start your quest! 🎮🚀
+**Ready to level up your career?** Install RepoComPass and start your quest! 
 
 ```
 ┌─────────────────────────────────────┐
