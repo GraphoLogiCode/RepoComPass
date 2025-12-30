@@ -166,7 +166,7 @@ RepoComPass/
 - No frameworks, no build tools, no bundlers
 
 **APIs:**
-- OpenAI GPT API (gpt-4o-mini model with Responses API and web search)
+- OpenAI GPT API (gpt-5-mini model with Responses API and web search)
 - Chrome Extension APIs (storage, scripting, tabs, messaging)
 
 **Fonts:**
