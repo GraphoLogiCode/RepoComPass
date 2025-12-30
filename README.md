@@ -1,61 +1,6 @@
-# 🧭 RepoComPass
+# RepoComPass
 
 A gamified Chrome extension that generates personalized portfolio project recommendations based on job postings. Level up your career with an epic, retro arcade experience!
-
-## ✨ Features
-
-### 🎮 Gamification & RPG System
-- **9 Skill Domains**: Track expertise across Data Structures, Algorithms, Systems/OS, Databases, Networking, Frontend, Backend, AI/ML, and Math/Probability
-- **Character Progression**: Evolve from "Apprentice Dev" 🧙 to "Legendary Dev" 🌟 across 7 character classes
-- **Power Level System**: Your total skill points determine your character class
-- **XP & Levels**: Gain experience by analyzing jobs and generating project ideas
-- **Custom Player Profile**: Create your unique developer persona
-
-### 🔍 Job Analysis
-- **Multi-Platform Support**: Automatically extracts job details from LinkedIn, Indeed, and Glassdoor
-- **Smart Extraction**: Uses multiple fallback selector chains to handle varying HTML structures
-- **Tech Stack Detection**: Pattern matching for 15+ technologies and frameworks
-- **Company Intelligence**: AI-powered web search to find company websites, engineering blogs, and GitHub organizations
-- **30-Second Caching**: Job data cached locally to prevent redundant scraping
-
-### 💡 AI-Powered Project Generation
-- **GPT-5-mini Integration**: Uses OpenAI's cost-optimized model with Responses API
-- **Structured Outputs**: JSON schema validation ensures reliable, parsable results
-- **Web Search Capability**: Leverages OpenAI's web search for up-to-date company information and tech recommendations
-- **Continuation Support**: Handles long AI responses gracefully
-- **Personalized Recommendations**: AI creates 3-5 project suggestions tailored to:
-  - Job requirements and tech stack
-  - Your current skill levels
-  - Company's technology preferences
-  - Difficulty level (Beginner/Intermediate/Advanced)
-  - Time estimates and standout features
-
-### 💾 Save & Track Ideas
-- **Portfolio Collection**: Save generated project ideas for later review
-- **Clear Organization**: View all saved ideas in the "IDEAS" tab
-- **Persistent Storage**: All data stored locally in Chrome storage
-- **Export Ready**: Ideas include full descriptions, tech stacks, and implementation guides
-
-### 🎨 Retro Arcade Experience
-- **80s Arcade Aesthetics**: Neon cyan/magenta colors, CRT effects, scanlines
-- **Pixel Perfect Fonts**: Orbitron, VT323, and Press Start 2P Google Fonts
-- **Animated UI**: Smooth transitions, glowing buttons, hover effects
-- **Responsive Design**: Optimized 400x600px popup with scrollable content
-- **Dark Mode**: Built-in dark theme perfect for late-night job hunting
-
-### 🔒 Privacy & Security
-- **Bring Your Own Key (BYOK)**: Your OpenAI API key stays in local browser storage
-- **Zero Analytics**: No tracking, no data collection, no telemetry
-- **Local-First Architecture**: All user data (stats, ideas, settings) persists locally
-- **Open Source**: Fully transparent codebase for security auditing
-- **No External Servers**: Direct API calls to OpenAI only, no intermediary servers
-
-### ⚡ Performance & Optimization
-- **Smart Caching System**: 24-hour cache for API responses reduces costs by 70%+
-- **Rate Limiting**: Built-in protection against API rate limit violations
-- **Automatic Cleanup**: Expired cache entries removed automatically
-- **Storage Quota Tracking**: Monitors browser storage usage
-- **Lazy Loading**: Content loaded on-demand for faster initial render
 
 ## 📦 Installation
 
@@ -104,7 +49,7 @@ After setup, you'll see a welcome screen with your character class and initial p
    - Glassdoor (`glassdoor.com/*`)
 
 2. **Open Extension**
-   - Click the 🎮 RepoComPass icon in your browser toolbar
+   - Click the RepoComPass icon in your browser toolbar
    - Or click the floating 🧭 compass button injected on the job page
 
 3. **Auto-Extract Job Details**
@@ -114,13 +59,8 @@ After setup, you'll see a welcome screen with your character class and initial p
      - Location
      - Job description and requirements
      - Detected technologies (via pattern matching)
-
-4. **Optional: Search Company**
-   - Click **"SEARCH COMPANY"** button
-   - AI uses web search to find company website, engineering blog, and GitHub organization
-   - Identifies commonly used technologies and recent projects
-
-5. **Generate Project Ideas**
+       
+4. **Generate Project Ideas**
    - Click **"GENERATE PROJECT IDEAS"** button
    - AI processes job requirements + your skills + company info
    - Receives 3-5 personalized project recommendations
@@ -134,8 +74,8 @@ After setup, you'll see a welcome screen with your character class and initial p
      - **Why It Stands Out**: Unique aspects that impress recruiters
      - **Alignment**: How it connects to the company's needs
 
-6. **Save Ideas**
-   - Click the 💾 save icon on any project idea
+5. **Save Ideas**
+   - Click the save icon on any project idea
    - Access saved ideas in the **"IDEAS"** tab anytime
    - Export or reference them when building your portfolio
 
@@ -281,79 +221,6 @@ Total: ~4,800 lines of code | ~170KB | Zero dependencies
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Key Components
-
-#### 1. CacheManager (`utils/helpers.js`)
-```javascript
-class CacheManager {
-  async set(key, data, ttl = 86400000)  // 24-hour default
-  async get(key)                         // Returns null if expired
-  async delete(key)
-  async clear()
-  async getStats()                       // Size, count, oldest entry
-}
-```
-
-#### 2. RateLimiter (`utils/helpers.js`)
-```javascript
-class RateLimiter {
-  async checkRateLimit(apiName, limit, windowMs)
-  async recordRequest(apiName)
-  async getRateLimitInfo(apiName)
-  async resetRateLimit(apiName)
-}
-```
-
-#### 3. TextUtils (`utils/helpers.js`)
-- Email extraction via regex
-- URL parsing and validation
-- Text normalization and sanitization
-- Name extraction from identifiers
-
-#### 4. StorageUtils (`utils/helpers.js`)
-- Settings management with defaults
-- Storage quota tracking
-- Async chrome.storage wrappers
-- Data migration helpers
-
-### Data Flow: Job Analysis
-
-1. **Content Script** detects job page via URL patterns
-2. **Scraper** uses CSS selectors to extract job data
-3. **Technology Detector** applies 15+ regex patterns to find tech stack
-4. **Cache Check** - if same job analyzed in last 30 seconds, return cached
-5. **Message Passing** sends data to popup via `chrome.runtime.sendMessage`
-6. **Popup** receives data and updates UI dynamically
-
-### Data Flow: Company Search
-
-1. **User** clicks "SEARCH COMPANY"
-2. **Popup** sends company name to service worker
-3. **Service Worker** makes OpenAI API call with web search enabled
-4. **AI searches web** for company website, blog, GitHub org, tech stack, recent projects
-5. **Structured JSON** returned with company intelligence
-6. **Cache Storage** saves response for 24 hours
-7. **Popup** displays company information with clickable links
-
-### Data Flow: AI Project Generation
-
-1. **User** clicks "GENERATE PROJECT IDEAS"
-2. **Popup** constructs prompt with job data + user skills + company info
-3. **Message** sent to service worker with API request
-4. **Service Worker** checks cache for identical request (24hr TTL)
-5. **If cache miss**: Makes authenticated POST to OpenAI Responses API
-6. **Continuation Handling**: If response incomplete, fetches remaining chunks
-7. **JSON Parsing**: Extracts structured project ideas from AI response
-8. **Cache Storage**: Saves response for 24 hours
-9. **Return to Popup**: Displays projects in UI
-
-### Manifest V3 Features
-
-- **Service Worker**: Replaces background pages for better performance
-- **Host Permissions**: Limited to specific job sites + OpenAI API
-- **Content Scripts**: Injected only on matching URLs (performance optimization)
-- **Storage API**: Asynchronous chrome.storage.local for persistence
-- **Scripting API**: Dynamic content script injection
 
 ## 📊 The 9 Skill Domains
 
@@ -377,24 +244,6 @@ class RateLimiter {
 - **Power Level**: Sum of all skill points determines character class
 - **Future XP System**: Planned feature to earn points by completing analyses
 
-## 💰 Cost Considerations
-
-### OpenAI API Pricing (as of Jan 2025)
-
-**Model**: gpt-4o-mini (with web search enabled for company intelligence)
-- **Input**: ~$0.150 per 1M tokens
-- **Output**: ~$0.600 per 1M tokens
-
-**Typical Usage**:
-- Job analysis prompt: ~800-1,200 tokens
-- AI response: ~1,500-2,500 tokens
-- **Cost per analysis**: ~$0.001-0.005 (less than half a cent!)
-- **100 job analyses**: ~$0.10-0.50
-
-**Free Credits**:
-- New OpenAI accounts receive $5 in free credits
-- Enough for ~1,000-5,000 job analyses
-
 ### Cost Optimization Tips
 
 ✅ **Enable Caching** (default: ON)
@@ -413,14 +262,7 @@ class RateLimiter {
 
 ### Estimated Monthly Costs
 
-| Usage Level | Jobs/Month | Est. Cost |
-|-------------|------------|-----------|
-| Light | 10-20 | $0.01-0.10 |
-| Moderate | 50-100 | $0.05-0.50 |
-| Heavy | 200-500 | $0.20-2.50 |
-| Power User | 1000+ | $1.00-5.00 |
-
-*Much cheaper than a cup of coffee, potentially life-changing for your career!*
+Much cheaper than a cup of coffee, potentially life-changing for your career!*
 
 ## 🐛 Troubleshooting
 
@@ -619,20 +461,6 @@ Conditions:
 - **Inspired by**: Retro arcade games, RPG progression systems
 - **Fonts**: Google Fonts (Orbitron, VT323, Press Start 2P)
 - **Icons**: Custom SVG compass design
-
-## 📞 Support & Feedback
-
-- **Issues**: [GitHub Issues](https://github.com/GraphoLogiCode/RepoComPass/issues)
-- **Feature Requests**: Open an issue with label "enhancement"
-- **Questions**: Check troubleshooting section first, then open issue
-
-## 🌟 Star this Project
-
-If RepoComPass helps you land your dream job, consider:
-- ⭐ Starring the repository
-- 🐦 Sharing on social media
-- 🤝 Contributing improvements
-- 💬 Leaving feedback
 
 ---
 
