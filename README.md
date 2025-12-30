@@ -248,24 +248,6 @@ Below is a **compressed, scannable version** with the same meaning and coverage.
 
 ---
 
-### Extension icon missing
-
-**Causes**
-
-* Not loaded
-* Dev mode off
-* Manifest error
-
-**Fix**
-
-* Check RepoComPass in `chrome://extensions/`
-* Enable Developer Mode
-* Reload via “Load unpacked”
-* Fix any red errors
-* Pin from puzzle icon 🧩
-
----
-
 ## 📜 License
 
 GPL v3.0 - see LICENSE file for details.
