@@ -105,15 +105,6 @@ Visit the **"STATS"** tab to:
 
 *Power level = sum of all 9 skill points (0-90 max)*
 
-### Customizing Settings
-
-In the **"CONFIG"** tab:
-- **OpenAI API Key**: Update or change your API key
-- **Enable Cache**: Toggle 24-hour caching (enabled by default, recommended)
-- **Clear Cache**: Manually flush cached API responses
-- **CRT Effects**: Enable/disable retro scanline overlay
-- **Debug Mode**: View detailed logs and API responses
-
 ## 🏗️ Project Structure
 
 ```
