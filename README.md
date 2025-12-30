@@ -270,15 +270,6 @@ Below is a **compressed, scannable version** with the same meaning and coverage.
 
 GPL v3.0 - see LICENSE file for details.
 
-You are free to:
-- ✓ Modify and distribute
-- ✓ Use privately
-- ✓ Sublicense
-
-Conditions:
-- Include original license and copyright notice
-- No warranty provided
-
 ## Acknowledgments
 
 - **Built with ❤️** for job seekers who want to stand out
