@@ -175,13 +175,13 @@ RepoComPass/
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Job Site                              │
-│              (LinkedIn / Indeed / Glassdoor)                 │
+│                        Job Site                             │
+│              (LinkedIn / Indeed / Glassdoor)                │
 └────────────────────────┬────────────────────────────────────┘
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                  Content Script                              │
+│                  Content Script                             │
 │  • Detects job posting pages (URL pattern matching)         │
 │  • Scrapes job data (multi-selector fallback chains)        │
 │  • Injects floating compass button                          │
@@ -191,17 +191,17 @@ RepoComPass/
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                     Popup UI                                 │
-│  • Displays extracted job information                        │
+│                     Popup UI                                │
+│  • Displays extracted job information                       │
 │  • Manages RPG stats (skills, XP, character class)          │
 │  • Handles user interactions (tabs, buttons, forms)         │
-│  • Requests AI generations via service worker                │
+│  • Requests AI generations via service worker               │
 │  • Persists data to chrome.storage.local                    │
 └────────────────────────┬────────────────────────────────────┘
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                  Service Worker                              │
+│                  Service Worker                             │
 │  • Proxies API calls to bypass CORS restrictions            │
 │  • Makes authenticated requests to OpenAI API               │
 │  • Implements Responses API with continuation support       │
@@ -212,7 +212,7 @@ RepoComPass/
                          │
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                 Chrome Storage                               │
+│                 Chrome Storage                              │
 │  • setupCompleted: boolean (first-launch detection)         │
 │  • playerStats: { name, skills, xp, savedIdeas }            │
 │  • settings: { apiKey, cacheEnabled, crtEffects }           │
