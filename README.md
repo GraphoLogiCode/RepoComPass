@@ -5,7 +5,7 @@ A gamified Chrome extension that generates personalized portfolio project recomm
 <img width="1400" height="560" alt="Untitled-2" src="https://github.com/user-attachments/assets/f34e943a-c9f0-4709-aa6a-a67d40166364" />
 (AI-Generated)
 
-## 📦 Installation
+## Installation
 
 ### For Development
 
@@ -105,7 +105,7 @@ Visit the **"STATS"** tab to:
 
 *Power level = sum of all 9 skill points (0-90 max)*
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 RepoComPass/
@@ -146,7 +146,7 @@ RepoComPass/
 
 ```
 
-## 🔧 Technical Architecture
+## Technical Architecture
 
 ### Tech Stack
 
@@ -195,7 +195,7 @@ Below is a **compressed, scannable version** with the same meaning and coverage.
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Could not extract job information
 
