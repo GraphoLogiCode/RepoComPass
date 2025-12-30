@@ -1,4 +1,4 @@
-# Privacy Policy for RepoComPass
+# Privacy Policy for RepoComPass - AI generated privacy policy
 
 **Last Updated:** December 29, 2025
 **Effective Date:** December 29, 2025
