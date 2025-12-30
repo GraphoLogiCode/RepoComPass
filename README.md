@@ -42,7 +42,7 @@ After setup, you'll see a welcome screen with your character class and initial p
 3. Create a new secret key (starts with `sk-proj-` or `sk-`)
 4. Copy the key and paste it in the extension setup
 
-## 🎯 Usage
+## Usage
 
 ### Analyzing a Job Posting
 
