@@ -2,6 +2,9 @@
 
 A gamified Chrome extension that generates personalized portfolio project recommendations based on job postings. Level up your career with an epic, retro arcade experience!
 
+
+![Uploading Untitled.png…]()
+
 ## 📦 Installation
 
 ### For Development
