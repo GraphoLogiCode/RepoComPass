@@ -94,10 +94,6 @@ After setup, you'll see a welcome screen with your character class and initial p
 3. Create a new secret key (starts with `sk-proj-` or `sk-`)
 4. Copy the key and paste it in the extension setup
 
-**Cost**: ~$0.001-0.005 per job analysis (using gpt-4o-mini, extremely cost-effective)
-
-**Free Credits**: OpenAI provides $5 in free credits for new accounts - enough for 1,000-5,000 job analyses!
-
 ## 🎯 Usage
 
 ### Analyzing a Job Posting
