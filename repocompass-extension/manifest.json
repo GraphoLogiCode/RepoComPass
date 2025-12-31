@@ -5,8 +5,7 @@
   "description": "Get personalized project recommendations based on job postings and company research",
   "permissions": [
     "storage",
-    "activeTab",
-    "scripting"
+    "activeTab"
   ],
   "host_permissions": [
     "https://www.linkedin.com/jobs/*",
