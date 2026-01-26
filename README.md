@@ -6,6 +6,8 @@
 It helps computer science students and developers build projects that directly align with real job requirements.
 
 ---
+<img width="3264" height="1312" alt="promoteRepo" src="https://github.com/user-attachments/assets/269bd0d7-0459-4ebb-8b28-a8fec3bce913" />
+
 
 ## What It Does
 
