@@ -1,6 +1,6 @@
 # RepoComPass
 
-A gamified Chrome extension that generates personalized portfolio project recommendations based on job postings. Level up your career with an epic, retro arcade experience!
+Chrome extension that generates personalized portfolio project recommendations based on job postings. 
 
 <img width="1400" height="560" alt="Untitled-2" src="https://github.com/user-attachments/assets/f34e943a-c9f0-4709-aa6a-a67d40166364" />
 (AI-Generated)
